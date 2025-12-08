@@ -238,9 +238,9 @@
 	FST::NODE()
 
 #define GRAPH_VAR 4, \
-	FST::NODE(1,FST::RELATION('v',1)),\
-	FST::NODE(1,FST::RELATION('a',2)),\
-	FST::NODE(1,FST::RELATION('r',3)),\
+	FST::NODE(1,FST::RELATION('n',1)),\
+	FST::NODE(1,FST::RELATION('e',2)),\
+	FST::NODE(1,FST::RELATION('w',3)),\
 	FST::NODE()
 
 #define GRAPH_HEX_LITERAL 4, \

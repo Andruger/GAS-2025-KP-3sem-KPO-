@@ -1,2 +1,2 @@
 ﻿  Assembling out.asm...
-LINK : fatal error LNK1104: не удается открыть файл "../Debug/StaticLibrary.lib"
+  Assembler.vcxproj -> D:\GAS-2025\GAS-2025-KP-3sem-KPO-\Debug\Assembler.exe

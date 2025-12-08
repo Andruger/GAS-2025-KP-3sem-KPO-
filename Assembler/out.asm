@@ -56,10 +56,10 @@ ExitProcess PROTO:DWORD
 		LTRL31 sword 56
 		LTRL32 sword 9
 		LTRL33 byte 'Remainder after division 56 by 9: ', 0
-		LTRL34 byte 'Andreyeee ', 0
+		LTRL34 byte 'Andrey ', 0
 		LTRL35 byte 'Gerasimovich', 0
 		LTRL36 byte 'Error', 0
-		LTRL37 byte 'Cycle from 2 to 10: ', 0
+		LTRL37 byte 'Cycle  to 10: ', 0
 		LTRL38 byte ' ', 0
 .data
 		temp sword ?
@@ -79,7 +79,6 @@ ExitProcess PROTO:DWORD
 		standdsa dword 0
 		standytr dword 0
 		standasd sword 0
-		standx sword 0
 		standu sword 0
 		standv sword 0
 		standr sword 0
@@ -128,7 +127,7 @@ pop edx
 pop ebx
 ; -------------------------
 mov ax, word ptr maxres
-ret
+ret 8
 max ENDP
 ;------------------------------
 
@@ -161,7 +160,7 @@ call outrad
 pop edx
 pop ebx
 ; -------------------------
-ret
+ret 8
 stand ENDP
 ;------------------------------
 
@@ -379,13 +378,6 @@ push offset buffer
 call rnd
 cwde
 push eax
-
-pop ebx
-mov word ptr standx, bx
-
-
-movsx eax, word ptr standx
-push eax
 call outlich
 
 push offset newline
@@ -446,9 +438,6 @@ push eax
 pop ebx
 pop eax
 sub eax, ebx
-jnc bk
-neg eax
-bk: 
 push eax
 
 movsx eax, word ptr LTRL26
@@ -540,7 +529,6 @@ push eax
 pop ebx
 pop eax
 cdq
-mov edx,0
 idiv ebx
 push edx
 
@@ -606,7 +594,7 @@ call outrad
 push offset newline
 call outrad
 
-movsx eax, word ptr LTRL22
+movsx eax, word ptr LTRL5
 push eax
 
 pop ebx

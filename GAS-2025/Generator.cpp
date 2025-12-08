@@ -8,6 +8,7 @@
 #include <iosfwd>
 #include <stack>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ namespace Gener
 				str = str + "push offset " + temp.top().id + "\n";
 			else if (temp.top().iddatatype == IT::IDDATATYPE::SHORT)
 			{
-				// FIX: Расширяем word до dword перед push
+				// FIX: Расширяем word до dword перед push (Стек всегда работает с 4 байтами)
 				str = str + "movsx eax, word ptr " + temp.top().id + "\n";
 				str = str + "push eax\n";
 			}
@@ -95,17 +96,28 @@ namespace Gener
 					}
 					break;
 				}
-				// Математика теперь работает корректно, так как в стеке лежат полные 4 байта (EAX, EBX)
+
 				case LEX_PLUS:
 					str = str + "pop ebx\npop eax\nadd eax, ebx\npush eax\n"; break;
+
 				case LEX_MINUS:
-					str = str + "pop ebx\npop eax\nsub eax, ebx\njnc b" + numberOfPoints + "\n" + "neg eax\n" + "b" + numberOfPoints + ": \n" + "push eax\n"; numberOfPoints = numberOfPoints + "m"; break;
+					// FIX: Исправлено на стандартное вычитание.
+					// Раньше тут была проверка флагов для модуля, что некорректно для арифметики.
+					str = str + "pop ebx\npop eax\nsub eax, ebx\npush eax\n";
+					break;
+
 				case LEX_STAR:
 					str = str + "pop ebx\npop eax\nimul eax, ebx\npush eax\n"; break;
+
 				case LEX_DIRSLASH:
-					str = str + "pop ebx\npop eax\ncdq\nidiv ebx\npush eax\n"; break;
+					// FIX: Убрано 'mov edx, 0'. 'cdq' корректно подготавливает EDX для знакового деления.
+					str = str + "pop ebx\npop eax\ncdq\nidiv ebx\npush eax\n";
+					break;
+
 				case LEX_PERSENT:
-					str = str + "pop ebx\npop eax\ncdq\nmov edx,0\nidiv ebx\npush edx\n"; break;
+					// FIX: Убрано 'mov edx, 0'.
+					str = str + "pop ebx\npop eax\ncdq\nidiv ebx\npush edx\n";
+					break;
 				}
 			}
 
@@ -166,7 +178,7 @@ namespace Gener
 		while (LEXEMA(j) != LEX_RIGHTTHESIS)
 		{
 			if (LEXEMA(j) == LEX_ID)
-				// FIX: В 32-битном стеке параметры всегда занимают 4 байта (DWORD), даже если это short
+				// В 32-битном стеке параметры всегда занимают 4 байта (DWORD)
 				str = str + string(ITENTRY(j).id) + (ITENTRY(j).iddatatype == IT::IDDATATYPE::SHORT ? " : DWORD, " : " : DWORD, ");
 			j++;
 		}
@@ -188,8 +200,39 @@ namespace Gener
 			else
 				str = str + "mov eax, " + string(retVal.id) + "\n";
 		}
-		str += "ret\n";
+
+		// FIX: Для STDCALL вызываемая функция должна очистить стек.
+		// Размер очистки = количество параметров * 4 байта
+		str += "ret " + itoS(pcount * 4) + "\n";
+
 		str += funcname + " ENDP" + SEPSTREMP;
+		return str;
+	}
+
+	string genCycleConditionCode(Lexer::LEX& tables, int i, int cycleNum)
+	{
+		string str;
+		IT::Entry lft = ITENTRY(i + 1);
+		IT::Entry rgt = ITENTRY(i + 3);
+
+		string movInstr = (lft.iddatatype == IT::IDDATATYPE::SHORT) ? "mov dx, word ptr " : "mov edx, ";
+		string cmpInstr = (rgt.iddatatype == IT::IDDATATYPE::SHORT) ? "cmp dx, word ptr " : "cmp edx, ";
+		str = str + movInstr + lft.id + "\n" + cmpInstr + rgt.id + "\n";
+
+		string jmpCmd;
+		switch (LEXEMA(i + 2))
+		{
+		case LEX_MORE:  jmpCmd = "jg";  break;
+		case LEX_LESS:   jmpCmd = "jl";  break;
+		case LEX_EQUALS:    jmpCmd = "jz";  break;
+		case LEX_NOTEQUALS:   jmpCmd = "jnz";  break;
+		case LEX_MOREEQUALS:   jmpCmd = "jge";  break;
+		case LEX_LESSEQUALS:   jmpCmd = "jle";  break;
+		}
+
+		str = str + "\n" + jmpCmd + " cycle" + itoS(cycleNum);
+		str = str + "\ncyclenext" + itoS(cycleNum) + ":";
+
 		return str;
 	}
 
@@ -210,7 +253,6 @@ namespace Gener
 			if (LEXEMA(j) == LEX_CYCLE) c = true;
 		}
 
-		// Сравнение оставляем как есть, для short используем word ptr, это корректно для CMP
 		string movInstr = (lft.iddatatype == IT::IDDATATYPE::SHORT) ? "mov dx, word ptr " : "mov edx, ";
 		string cmpInstr = (rgt.iddatatype == IT::IDDATATYPE::SHORT) ? "cmp dx, word ptr " : "cmp edx, ";
 		str = str + movInstr + lft.id + "\n" + cmpInstr + rgt.id + "\n";
@@ -256,7 +298,7 @@ namespace Gener
 	{
 		vector <string> v;
 		v.push_back(BEGIN);
-		v.push_back(EXTERN); // ВНИМАНИЕ: Проверьте, чтобы в Generator.h константа EXTERN содержала закрывающую кавычку в includelib!
+		v.push_back(EXTERN);
 		vector <string> vlt;  vlt.push_back(CONST);
 		vector <string> vid;  vid.push_back(DATA);
 		for (int i = 0; i < tables.idtable.size; i++)
@@ -300,6 +342,7 @@ namespace Gener
 		int pcount;
 		string str;
 		IT::IDDATATYPE funcRetType = IT::IDDATATYPE::UNDEF;
+		map<int, int> cycleNumMap;
 		for (int i = 0; i < tables.lextable.size; i++)
 		{
 			switch (LEXEMA(i))
@@ -330,7 +373,21 @@ namespace Gener
 			}
 			case LEX_CONDITION:
 			{
-				str = genConditionCode(tables, i, cyclecode);
+				bool isCycleCondition = false;
+				int cycleNum = -1;
+				if (i > 0 && LEXEMA(i - 1) == LEX_DIEZ && i > 1 && LEXEMA(i - 2) == LEX_BRACELET)
+				{
+					if (cycleNumMap.find(i - 1) != cycleNumMap.end())
+					{
+						isCycleCondition = true;
+						cycleNum = cycleNumMap[i - 1];
+					}
+				}
+
+				if (isCycleCondition)
+					str = genCycleConditionCode(tables, i, cycleNum);
+				else
+					str = genConditionCode(tables, i, cyclecode);
 				break;
 			}
 			case LEX_BRACELET:
@@ -343,13 +400,28 @@ namespace Gener
 				if (LEXEMA(i - 1) == LEX_BRACELET)
 				{
 					bool c = false;
+					bool isCycleEnd = false;
+					if (LEXEMA(i + 1) == LEX_CONDITION)
+					{
+						for (int j = i - 2; j >= 0 && j >= i - 20; j--)
+						{
+							if (LEXEMA(j) == LEX_CYCLE)
+							{
+								isCycleEnd = true;
+								break;
+							}
+							if (LEXEMA(j) == LEX_CONDITION) break;
+						}
+					}
+
 					for (int j = i; j > 0 && LEXEMA(j) != LEX_CONDITION; j--)
 						if (LEXEMA(j) == LEX_CYCLE)
 							c = true;
-					if (c)
-					{
+
+					if (isCycleEnd)
+						str = "";
+					else if (c)
 						str = cyclecode + "\ncyclenext" + itoS(conditionnum) + ":";
-					}
 					else  str += "next" + itoS(conditionnum) + ":";
 				}
 				break;
@@ -366,7 +438,35 @@ namespace Gener
 			}
 			case LEX_CYCLE:
 			{
-				str = str + "cycle" + itoS(conditionnum) + ":";
+				bool hasConditionAfter = false;
+				int diezPos = -1;
+				for (int j = i + 1; j < tables.lextable.size && j < i + 50; j++)
+				{
+					if (LEXEMA(j) == LEX_BRACELET)
+					{
+						for (int k = j + 1; k < tables.lextable.size && k < j + 5; k++)
+						{
+							if (LEXEMA(k) == LEX_DIEZ)
+							{
+								diezPos = k;
+								if (k + 1 < tables.lextable.size && LEXEMA(k + 1) == LEX_CONDITION)
+									hasConditionAfter = true;
+								break;
+							}
+						}
+						break;
+					}
+				}
+
+				if (hasConditionAfter)
+				{
+					conditionnum++;
+					if (diezPos >= 0)
+						cycleNumMap[diezPos] = conditionnum;
+					str = str + "cycle" + itoS(conditionnum) + ":";
+				}
+				else
+					str = str + "cycle" + itoS(conditionnum) + ":";
 				break;
 			}
 			case LEX_EQUAL:
@@ -382,45 +482,29 @@ namespace Gener
 			}
 			case LEX_WRITE:
 			{
-				// Проверяем, является ли следующий токен вызовом функции: ID + '('
 				if (LEXEMA(i + 1) == LEX_ID && LEXEMA(i + 2) == LEX_LEFTHESIS)
 				{
-					// 1. Генерируем код вызова функции
-					// Обратите внимание: передаем i + 1, так как имя функции там
 					str = str + genCallFuncCode(tables, log, i + 1);
-
-					// После genCallFuncCode результат лежит в EAX.
-					// Нам нужно запушить его в стек для функции вывода.
 					str += "push eax\n";
 
-					// 2. Определяем тип возвращаемого значения функции, чтобы выбрать правильный print
 					IT::Entry funcEntry = ITENTRY(i + 1);
 					if (funcEntry.iddatatype == IT::IDDATATYPE::SHORT)
-					{
 						str += "call outlich\n";
-					}
-					else // STR или CHAR
-					{
+					else
 						str += "call outrad\n";
-					}
 
-					// 3. ВАЖНО: Пропускаем токены функции в основном цикле, 
-					// чтобы генератор не попытался обработать аргументы функции как отдельный код.
-					// Ищем закрывающую скобку ')' вызова функции.
 					int j = i + 2;
 					while (LEXEMA(j) != LEX_RIGHTTHESIS) {
 						j++;
 					}
-					i = j; // Сдвигаем счетчик главного цикла на конец вызова функции
+					i = j;
 				}
 				else
 				{
-					// СТАНДАРТНАЯ ЛОГИКА (как была у вас раньше для переменных и литералов)
 					IT::Entry e = ITENTRY(i + 1);
 					switch (e.iddatatype)
 					{
 					case IT::IDDATATYPE::SHORT:
-						// FIX: Расширяем до EAX
 						str = str + "\nmovsx eax, word ptr " + e.id + "\npush eax\ncall outlich\n";
 						break;
 					case IT::IDDATATYPE::STR:

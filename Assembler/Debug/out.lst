@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.44.35213.0	    12/08/25 17:03:28
+Microsoft (R) Macro Assembler Version 14.44.35213.0	    12/08/25 20:13:30
 out.asm							     Page 1 - 1
 
 
@@ -108,20 +108,17 @@ out.asm							     Page 1 - 1
 	   73 69 6F 6E 20
 	   35 36 20 62 79
 	   20 39 3A 20 00
- 0000014B 41 6E 64 72 65			LTRL34 byte 'Andreyeee ', 0
-	   79 65 65 65 20
-	   00
- 00000156 47 65 72 61 73			LTRL35 byte 'Gerasimovich', 0
+ 0000014B 41 6E 64 72 65			LTRL34 byte 'Andrey ', 0
+	   79 20 00
+ 00000153 47 65 72 61 73			LTRL35 byte 'Gerasimovich', 0
 	   69 6D 6F 76 69
 	   63 68 00
- 00000163 45 72 72 6F 72			LTRL36 byte 'Error', 0
+ 00000160 45 72 72 6F 72			LTRL36 byte 'Error', 0
 	   00
- 00000169 43 79 63 6C 65			LTRL37 byte 'Cycle from 2 to 10: ', 0
-	   20 66 72 6F 6D
-	   20 32 20 74 6F
-	   20 31 30 3A 20
-	   00
- 0000017E 20 00					LTRL38 byte ' ', 0
+ 00000166 43 79 63 6C 65			LTRL37 byte 'Cycle  to 10: ', 0
+	   20 20 74 6F 20
+	   31 30 3A 20 00
+ 00000175 20 00					LTRL38 byte ' ', 0
  00000000			.data
  00000000 0000					temp sword ?
  00000002  00000100 [				buffer byte 256 dup(0)
@@ -142,20 +139,19 @@ out.asm							     Page 1 - 1
  00000124 00000000				standdsa dword 0
  00000128 00000000				standytr dword 0
  0000012C 0000					standasd sword 0
- 0000012E 0000					standx sword 0
- 00000130 0000					standu sword 0
- 00000132 0000					standv sword 0
- 00000134 0000					standr sword 0
- 00000136 00000000				standc dword 0
- 0000013A 0000					standk sword 0
- 0000013C 00000000				standlen dword 0
- 00000140 0000					standnumb sword 0
- 00000142 0000					standremainder sword 0
- 00000144 00000000				standname dword 0
- 00000148 00000000				standsurname dword 0
- 0000014C 0000					standpoi sword 0
- 0000014E 0000					standisi sword 0
- 00000150 0000					standab sword 0
+ 0000012E 0000					standu sword 0
+ 00000130 0000					standv sword 0
+ 00000132 0000					standr sword 0
+ 00000134 00000000				standc dword 0
+ 00000138 0000					standk sword 0
+ 0000013A 00000000				standlen dword 0
+ 0000013E 0000					standnumb sword 0
+ 00000140 0000					standremainder sword 0
+ 00000142 00000000				standname dword 0
+ 00000146 00000000				standsurname dword 0
+ 0000014A 0000					standpoi sword 0
+ 0000014C 0000					standisi sword 0
+ 0000014E 0000					standab sword 0
  00000000			.code
 
 				;----------- max ------------
@@ -476,324 +472,315 @@ out.asm							     Page 1 - 1
  000002DB  E8 00000000 E	call rnd
  000002E0  98			cwde
  000002E1  50			push eax
+ 000002E2  E8 00000000 E	call outlich
 
- 000002E2  5B			pop ebx
- 000002E3  66| 89 1D		mov word ptr standx, bx
-	   0000012E R
-
-
- 000002EA  0F BF 05		movsx eax, word ptr standx
-	   0000012E R
- 000002F1  50			push eax
- 000002F2  E8 00000000 E	call outlich
-
- 000002F7  68 00000000 R	push offset newline
- 000002FC  E8 00000000 E	call outrad
+ 000002E7  68 00000000 R	push offset newline
+ 000002EC  E8 00000000 E	call outrad
 
 
- 00000301  68 00000029 R	push offset LTRL4
- 00000306  E8 00000000 E	call outrad
+ 000002F1  68 00000029 R	push offset LTRL4
+ 000002F6  E8 00000000 E	call outrad
 
- 0000030B  68 00000000 R	push offset newline
- 00000310  E8 00000000 E	call outrad
+ 000002FB  68 00000000 R	push offset newline
+ 00000300  E8 00000000 E	call outrad
 
- 00000315  0F BF 05		movsx eax, word ptr LTRL23
+ 00000305  0F BF 05		movsx eax, word ptr LTRL23
 	   000000C5 R
+ 0000030C  50			push eax
+
+ 0000030D  5B			pop ebx
+ 0000030E  66| 89 1D		mov word ptr standu, bx
+	   0000012E R
+
+ 00000315  0F BF 05		movsx eax, word ptr LTRL24
+	   000000C7 R
  0000031C  50			push eax
 
  0000031D  5B			pop ebx
- 0000031E  66| 89 1D		mov word ptr standu, bx
+ 0000031E  66| 89 1D		mov word ptr standv, bx
 	   00000130 R
 
- 00000325  0F BF 05		movsx eax, word ptr LTRL24
-	   000000C7 R
- 0000032C  50			push eax
 
- 0000032D  5B			pop ebx
- 0000032E  66| 89 1D		mov word ptr standv, bx
-	   00000132 R
+ 00000325  68 000000C9 R	push offset LTRL25
+ 0000032A  E8 00000000 E	call outrad
 
-
- 00000335  68 000000C9 R	push offset LTRL25
- 0000033A  E8 00000000 E	call outrad
-
- 0000033F  0F BF 05		movsx eax, word ptr standu
+ 0000032F  0F BF 05		movsx eax, word ptr standu
+	   0000012E R
+ 00000336  50			push eax
+ 00000337  0F BF 05		movsx eax, word ptr standv
 	   00000130 R
+ 0000033E  50			push eax
+ 0000033F  0F BF 05		movsx eax, word ptr LTRL5
+	   00000040 R
  00000346  50			push eax
- 00000347  0F BF 05		movsx eax, word ptr standv
-	   00000132 R
- 0000034E  50			push eax
- 0000034F  0F BF 05		movsx eax, word ptr LTRL5
-	   00000040 R
- 00000356  50			push eax
- 00000357  5B			pop ebx
- 00000358  58			pop eax
- 00000359  0F AF C3		imul eax, ebx
- 0000035C  50			push eax
- 0000035D  5B			pop ebx
- 0000035E  58			pop eax
- 0000035F  03 C3		add eax, ebx
+ 00000347  5B			pop ebx
+ 00000348  58			pop eax
+ 00000349  0F AF C3		imul eax, ebx
+ 0000034C  50			push eax
+ 0000034D  5B			pop ebx
+ 0000034E  58			pop eax
+ 0000034F  03 C3		add eax, ebx
+ 00000351  50			push eax
+ 00000352  0F BF 05		movsx eax, word ptr LTRL6
+	   00000042 R
+ 00000359  50			push eax
+ 0000035A  0F BF 05		movsx eax, word ptr LTRL6
+	   00000042 R
  00000361  50			push eax
- 00000362  0F BF 05		movsx eax, word ptr LTRL6
-	   00000042 R
- 00000369  50			push eax
- 0000036A  0F BF 05		movsx eax, word ptr LTRL6
-	   00000042 R
- 00000371  50			push eax
- 00000372  5B			pop ebx
- 00000373  58			pop eax
- 00000374  03 C3		add eax, ebx
- 00000376  50			push eax
- 00000377  0F BF 05		movsx eax, word ptr LTRL5
+ 00000362  5B			pop ebx
+ 00000363  58			pop eax
+ 00000364  03 C3		add eax, ebx
+ 00000366  50			push eax
+ 00000367  0F BF 05		movsx eax, word ptr LTRL5
 	   00000040 R
- 0000037E  50			push eax
- 0000037F  5B			pop ebx
- 00000380  58			pop eax
- 00000381  99			cdq
- 00000382  F7 FB		idiv ebx
- 00000384  50			push eax
- 00000385  5B			pop ebx
- 00000386  58			pop eax
- 00000387  2B C3		sub eax, ebx
- 00000389  73 02		jnc bk
- 0000038B  F7 D8		neg eax
- 0000038D			bk: 
- 0000038D  50			push eax
+ 0000036E  50			push eax
+ 0000036F  5B			pop ebx
+ 00000370  58			pop eax
+ 00000371  99			cdq
+ 00000372  F7 FB		idiv ebx
+ 00000374  50			push eax
+ 00000375  5B			pop ebx
+ 00000376  58			pop eax
+ 00000377  2B C3		sub eax, ebx
+ 00000379  73 02		jnc bk
+ 0000037B  F7 D8		neg eax
+ 0000037D			bk: 
+ 0000037D  50			push eax
 
- 0000038E  0F BF 05		movsx eax, word ptr LTRL26
+ 0000037E  0F BF 05		movsx eax, word ptr LTRL26
 	   000000E2 R
- 00000395  50			push eax
- 00000396  0F BF 05		movsx eax, word ptr LTRL23
+ 00000385  50			push eax
+ 00000386  0F BF 05		movsx eax, word ptr LTRL23
 	   000000C5 R
- 0000039D  50			push eax
- 0000039E  E8 FFFFFC5D		call max
- 000003A3  98			cwde
- 000003A4  50			push eax
- 000003A5  5B			pop ebx
- 000003A6  58			pop eax
- 000003A7  03 C3		add eax, ebx
+ 0000038D  50			push eax
+ 0000038E  E8 FFFFFC6D		call max
+ 00000393  98			cwde
+ 00000394  50			push eax
+ 00000395  5B			pop ebx
+ 00000396  58			pop eax
+ 00000397  03 C3		add eax, ebx
+ 00000399  50			push eax
+
+ 0000039A  5B			pop ebx
+ 0000039B  66| 89 1D		mov word ptr standr, bx
+	   00000132 R
+
+
+ 000003A2  0F BF 05		movsx eax, word ptr standr
+	   00000132 R
  000003A9  50			push eax
+ 000003AA  E8 00000000 E	call outlich
 
- 000003AA  5B			pop ebx
- 000003AB  66| 89 1D		mov word ptr standr, bx
-	   00000134 R
-
-
- 000003B2  0F BF 05		movsx eax, word ptr standr
-	   00000134 R
- 000003B9  50			push eax
- 000003BA  E8 00000000 E	call outlich
-
- 000003BF  68 00000000 R	push offset newline
- 000003C4  E8 00000000 E	call outrad
+ 000003AF  68 00000000 R	push offset newline
+ 000003B4  E8 00000000 E	call outrad
 
 
- 000003C9  68 00000029 R	push offset LTRL4
- 000003CE  E8 00000000 E	call outrad
+ 000003B9  68 00000029 R	push offset LTRL4
+ 000003BE  E8 00000000 E	call outrad
 
- 000003D3  68 00000000 R	push offset newline
- 000003D8  E8 00000000 E	call outrad
+ 000003C3  68 00000000 R	push offset newline
+ 000003C8  E8 00000000 E	call outrad
 
- 000003DD  C7 05 00000136 R	mov standc, offset LTRL27
+ 000003CD  C7 05 00000134 R	mov standc, offset LTRL27
 	   000000E4 R
 
- 000003E7  68 000000E8 R	push offset LTRL28
- 000003EC  E8 00000000 E	call outrad
+ 000003D7  68 000000E8 R	push offset LTRL28
+ 000003DC  E8 00000000 E	call outrad
 
 
- 000003F1  FF 35 00000136 R	push standc
- 000003F7  68 00000002 R	push offset buffer
- 000003FC  E8 00000000 E	call aton
- 00000401  98			cwde
- 00000402  50			push eax
- 00000403  E8 00000000 E	call outlich
+ 000003E1  FF 35 00000134 R	push standc
+ 000003E7  68 00000002 R	push offset buffer
+ 000003EC  E8 00000000 E	call aton
+ 000003F1  98			cwde
+ 000003F2  50			push eax
+ 000003F3  E8 00000000 E	call outlich
 
- 00000408  68 00000000 R	push offset newline
- 0000040D  E8 00000000 E	call outrad
+ 000003F8  68 00000000 R	push offset newline
+ 000003FD  E8 00000000 E	call outrad
 
 
- 00000412  68 00000029 R	push offset LTRL4
- 00000417  E8 00000000 E	call outrad
+ 00000402  68 00000029 R	push offset LTRL4
+ 00000407  E8 00000000 E	call outrad
 
- 0000041C  68 00000000 R	push offset newline
- 00000421  E8 00000000 E	call outrad
+ 0000040C  68 00000000 R	push offset newline
+ 00000411  E8 00000000 E	call outrad
 
- 00000426  C7 05 0000013C R	mov standlen, offset LTRL29
+ 00000416  C7 05 0000013A R	mov standlen, offset LTRL29
 	   0000010A R
 
- 00000430  68 00000116 R	push offset LTRL30
- 00000435  E8 00000000 E	call outrad
+ 00000420  68 00000116 R	push offset LTRL30
+ 00000425  E8 00000000 E	call outrad
 
 
- 0000043A  FF 35 0000013C R	push standlen
- 00000440  68 00000002 R	push offset buffer
- 00000445  E8 00000000 E	call slength
- 0000044A  98			cwde
- 0000044B  50			push eax
- 0000044C  E8 00000000 E	call outlich
+ 0000042A  FF 35 0000013A R	push standlen
+ 00000430  68 00000002 R	push offset buffer
+ 00000435  E8 00000000 E	call slength
+ 0000043A  98			cwde
+ 0000043B  50			push eax
+ 0000043C  E8 00000000 E	call outlich
 
- 00000451  68 00000000 R	push offset newline
- 00000456  E8 00000000 E	call outrad
+ 00000441  68 00000000 R	push offset newline
+ 00000446  E8 00000000 E	call outrad
 
 
- 0000045B  68 00000029 R	push offset LTRL4
- 00000460  E8 00000000 E	call outrad
+ 0000044B  68 00000029 R	push offset LTRL4
+ 00000450  E8 00000000 E	call outrad
 
- 00000465  68 00000000 R	push offset newline
- 0000046A  E8 00000000 E	call outrad
+ 00000455  68 00000000 R	push offset newline
+ 0000045A  E8 00000000 E	call outrad
 
- 0000046F  0F BF 05		movsx eax, word ptr LTRL31
+ 0000045F  0F BF 05		movsx eax, word ptr LTRL31
 	   00000124 R
+ 00000466  50			push eax
+
+ 00000467  5B			pop ebx
+ 00000468  66| 89 1D		mov word ptr standnumb, bx
+	   0000013E R
+
+ 0000046F  0F BF 05		movsx eax, word ptr standnumb
+	   0000013E R
  00000476  50			push eax
-
- 00000477  5B			pop ebx
- 00000478  66| 89 1D		mov word ptr standnumb, bx
-	   00000140 R
-
- 0000047F  0F BF 05		movsx eax, word ptr standnumb
-	   00000140 R
- 00000486  50			push eax
- 00000487  0F BF 05		movsx eax, word ptr LTRL32
+ 00000477  0F BF 05		movsx eax, word ptr LTRL32
 	   00000126 R
- 0000048E  50			push eax
- 0000048F  5B			pop ebx
- 00000490  58			pop eax
- 00000491  99			cdq
- 00000492  BA 00000000		mov edx,0
- 00000497  F7 FB		idiv ebx
- 00000499  52			push edx
+ 0000047E  50			push eax
+ 0000047F  5B			pop ebx
+ 00000480  58			pop eax
+ 00000481  99			cdq
+ 00000482  BA 00000000		mov edx,0
+ 00000487  F7 FB		idiv ebx
+ 00000489  52			push edx
 
- 0000049A  5B			pop ebx
- 0000049B  66| 89 1D		mov word ptr standremainder, bx
-	   00000142 R
-
-
- 000004A2  68 00000128 R	push offset LTRL33
- 000004A7  E8 00000000 E	call outrad
+ 0000048A  5B			pop ebx
+ 0000048B  66| 89 1D		mov word ptr standremainder, bx
+	   00000140 R
 
 
- 000004AC  0F BF 05		movsx eax, word ptr standremainder
-	   00000142 R
- 000004B3  50			push eax
- 000004B4  E8 00000000 E	call outlich
-
- 000004B9  68 00000000 R	push offset newline
- 000004BE  E8 00000000 E	call outrad
+ 00000492  68 00000128 R	push offset LTRL33
+ 00000497  E8 00000000 E	call outrad
 
 
- 000004C3  68 00000029 R	push offset LTRL4
- 000004C8  E8 00000000 E	call outrad
+ 0000049C  0F BF 05		movsx eax, word ptr standremainder
+	   00000140 R
+ 000004A3  50			push eax
+ 000004A4  E8 00000000 E	call outlich
 
- 000004CD  68 00000000 R	push offset newline
- 000004D2  E8 00000000 E	call outrad
+ 000004A9  68 00000000 R	push offset newline
+ 000004AE  E8 00000000 E	call outrad
 
- 000004D7  C7 05 00000144 R	mov standname, offset LTRL34
+
+ 000004B3  68 00000029 R	push offset LTRL4
+ 000004B8  E8 00000000 E	call outrad
+
+ 000004BD  68 00000000 R	push offset newline
+ 000004C2  E8 00000000 E	call outrad
+
+ 000004C7  C7 05 00000142 R	mov standname, offset LTRL34
 	   0000014B R
- 000004E1  C7 05 00000148 R	mov standsurname, offset LTRL35
-	   00000156 R
+ 000004D1  C7 05 00000146 R	mov standsurname, offset LTRL35
+	   00000153 R
+ 000004DB  0F BF 05		movsx eax, word ptr LTRL6
+	   00000042 R
+ 000004E2  50			push eax
+
+ 000004E3  5B			pop ebx
+ 000004E4  66| 89 1D		mov word ptr standpoi, bx
+	   0000014A R
+
  000004EB  0F BF 05		movsx eax, word ptr LTRL6
 	   00000042 R
  000004F2  50			push eax
 
  000004F3  5B			pop ebx
- 000004F4  66| 89 1D		mov word ptr standpoi, bx
+ 000004F4  66| 89 1D		mov word ptr standisi, bx
 	   0000014C R
 
- 000004FB  0F BF 05		movsx eax, word ptr LTRL6
-	   00000042 R
- 00000502  50			push eax
-
- 00000503  5B			pop ebx
- 00000504  66| 89 1D		mov word ptr standisi, bx
-	   0000014E R
-
- 0000050B  66| 8B 15		mov dx, word ptr standpoi
+ 000004FB  66| 8B 15		mov dx, word ptr standpoi
+	   0000014A R
+ 00000502  66| 3B 15		cmp dx, word ptr standisi
 	   0000014C R
- 00000512  66| 3B 15		cmp dx, word ptr standisi
-	   0000014E R
 
- 00000519  74 04		jz right4
- 0000051B  7C 02		jl right4
- 0000051D  75 13		jnz wrong4
- 0000051F			right4:
+ 00000509  74 04		jz right4
+ 0000050B  7C 02		jl right4
+ 0000050D  75 13		jnz wrong4
+ 0000050F			right4:
 
- 0000051F  FF 35 00000148 R	push standsurname
- 00000525  FF 35 00000144 R	push standname
- 0000052B  E8 FFFFFB09		call stand
+ 0000050F  FF 35 00000146 R	push standsurname
+ 00000515  FF 35 00000142 R	push standname
+ 0000051B  E8 FFFFFB19		call stand
 
- 00000530  EB 0A		jmp next4
- 00000532			wrong4:
+ 00000520  EB 0A		jmp next4
+ 00000522			wrong4:
 
- 00000532  68 00000163 R	push offset LTRL36
- 00000537  E8 00000000 E	call outrad
+ 00000522  68 00000160 R	push offset LTRL36
+ 00000527  E8 00000000 E	call outrad
 
- 0000053C			next4:
+ 0000052C			next4:
 
- 0000053C  68 00000029 R	push offset LTRL4
- 00000541  E8 00000000 E	call outrad
+ 0000052C  68 00000029 R	push offset LTRL4
+ 00000531  E8 00000000 E	call outrad
 
- 00000546  68 00000000 R	push offset newline
- 0000054B  E8 00000000 E	call outrad
+ 00000536  68 00000000 R	push offset newline
+ 0000053B  E8 00000000 E	call outrad
 
- 00000550  0F BF 05		movsx eax, word ptr LTRL22
+ 00000540  0F BF 05		movsx eax, word ptr LTRL22
 	   000000C3 R
- 00000557  50			push eax
+ 00000547  50			push eax
 
- 00000558  5B			pop ebx
- 00000559  66| 89 1D		mov word ptr standab, bx
-	   00000150 R
-
-
- 00000560  68 00000169 R	push offset LTRL37
- 00000565  E8 00000000 E	call outrad
-
- 0000056A			cycle5:
-
- 0000056A  0F BF 05		movsx eax, word ptr standab
-	   00000150 R
- 00000571  50			push eax
- 00000572  E8 00000000 E	call outlich
+ 00000548  5B			pop ebx
+ 00000549  66| 89 1D		mov word ptr standab, bx
+	   0000014E R
 
 
- 00000577  68 0000017E R	push offset LTRL38
- 0000057C  E8 00000000 E	call outrad
+ 00000550  68 00000166 R	push offset LTRL37
+ 00000555  E8 00000000 E	call outrad
 
- 00000581  0F BF 05		movsx eax, word ptr standab
-	   00000150 R
- 00000588  50			push eax
- 00000589  0F BF 05		movsx eax, word ptr LTRL5
+ 0000055A			cycle5:
+
+ 0000055A  0F BF 05		movsx eax, word ptr standab
+	   0000014E R
+ 00000561  50			push eax
+ 00000562  E8 00000000 E	call outlich
+
+
+ 00000567  68 00000175 R	push offset LTRL38
+ 0000056C  E8 00000000 E	call outrad
+
+ 00000571  0F BF 05		movsx eax, word ptr standab
+	   0000014E R
+ 00000578  50			push eax
+ 00000579  0F BF 05		movsx eax, word ptr LTRL5
 	   00000040 R
- 00000590  50			push eax
- 00000591  5B			pop ebx
- 00000592  58			pop eax
- 00000593  03 C3		add eax, ebx
- 00000595  50			push eax
+ 00000580  50			push eax
+ 00000581  5B			pop ebx
+ 00000582  58			pop eax
+ 00000583  03 C3		add eax, ebx
+ 00000585  50			push eax
 
- 00000596  5B			pop ebx
- 00000597  66| 89 1D		mov word ptr standab, bx
-	   00000150 R
+ 00000586  5B			pop ebx
+ 00000587  66| 89 1D		mov word ptr standab, bx
+	   0000014E R
 
- 0000059E  66| 8B 15		mov dx, word ptr standab
-	   00000150 R
- 000005A5  66| 3B 15		cmp dx, word ptr LTRL22
+ 0000058E  66| 8B 15		mov dx, word ptr standab
+	   0000014E R
+ 00000595  66| 3B 15		cmp dx, word ptr LTRL22
 	   000000C3 R
 
- 000005AC  7C BC		jl cycle5
- 000005AE			cyclenext5:
+ 0000059C  7C BC		jl cycle5
+ 0000059E			cyclenext5:
 
- 000005AE  0F BF 05		movsx eax, word ptr standab
-	   00000150 R
- 000005B5  50			push eax
- 000005B6  E8 00000000 E	call outlich
+ 0000059E  0F BF 05		movsx eax, word ptr standab
+	   0000014E R
+ 000005A5  50			push eax
+ 000005A6  E8 00000000 E	call outlich
 
- 000005BB  68 00000000 R	push offset newline
- 000005C0  E8 00000000 E	call outrad
+ 000005AB  68 00000000 R	push offset newline
+ 000005B0  E8 00000000 E	call outrad
 
- 000005C5  6A 00		push 0
- 000005C7  E8 00000000 E	call ExitProcess
- 000005CC			main ENDP
+ 000005B5  6A 00		push 0
+ 000005B7  E8 00000000 E	call ExitProcess
+ 000005BC			main ENDP
 				end main
-Microsoft (R) Macro Assembler Version 14.44.35213.0	    12/08/25 17:03:28
+Microsoft (R) Macro Assembler Version 14.44.35213.0	    12/08/25 20:13:30
 out.asm							     Symbols 2 - 1
 
 
@@ -803,11 +790,11 @@ Segments and Groups:
 
                 N a m e                 Size     Length   Align   Combine Class
 
-CONST  . . . . . . . . . . . . .	32 Bit	 00000180 Para	  Public  'CONST'	 ReadOnly
+CONST  . . . . . . . . . . . . .	32 Bit	 00000177 Para	  Public  'CONST'	 ReadOnly
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000152 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000005CC Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000150 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000005BC Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -818,19 +805,19 @@ ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 aton . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 compare  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 concat . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000078 _TEXT	Length= 00000554 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000078 _TEXT	Length= 00000544 Public STDCALL
   right2 . . . . . . . . . . . .	L Near	 0000019C _TEXT	
   wrong2 . . . . . . . . . . . .	L Near	 000001A8 _TEXT	
   next2  . . . . . . . . . . . .	L Near	 000001B2 _TEXT	
   right3 . . . . . . . . . . . .	L Near	 00000288 _TEXT	
   wrong3 . . . . . . . . . . . .	L Near	 00000294 _TEXT	
   next3  . . . . . . . . . . . .	L Near	 0000029E _TEXT	
-  bk . . . . . . . . . . . . . .	L Near	 0000038D _TEXT	
-  right4 . . . . . . . . . . . .	L Near	 0000051F _TEXT	
-  wrong4 . . . . . . . . . . . .	L Near	 00000532 _TEXT	
-  next4  . . . . . . . . . . . .	L Near	 0000053C _TEXT	
-  cycle5 . . . . . . . . . . . .	L Near	 0000056A _TEXT	
-  cyclenext5 . . . . . . . . . .	L Near	 000005AE _TEXT	
+  bk . . . . . . . . . . . . . .	L Near	 0000037D _TEXT	
+  right4 . . . . . . . . . . . .	L Near	 0000050F _TEXT	
+  wrong4 . . . . . . . . . . . .	L Near	 00000522 _TEXT	
+  next4  . . . . . . . . . . . .	L Near	 0000052C _TEXT	
+  cycle5 . . . . . . . . . . . .	L Near	 0000055A _TEXT	
+  cyclenext5 . . . . . . . . . .	L Near	 0000059E _TEXT	
 max  . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000039 Public STDCALL
   maxx . . . . . . . . . . . . .	DWord	 bp + 00000008
   maxy . . . . . . . . . . . . .	DWord	 bp + 0000000C
@@ -886,10 +873,10 @@ LTRL31 . . . . . . . . . . . . .	Word	 00000124 CONST
 LTRL32 . . . . . . . . . . . . .	Word	 00000126 CONST	
 LTRL33 . . . . . . . . . . . . .	Byte	 00000128 CONST	
 LTRL34 . . . . . . . . . . . . .	Byte	 0000014B CONST	
-LTRL35 . . . . . . . . . . . . .	Byte	 00000156 CONST	
-LTRL36 . . . . . . . . . . . . .	Byte	 00000163 CONST	
-LTRL37 . . . . . . . . . . . . .	Byte	 00000169 CONST	
-LTRL38 . . . . . . . . . . . . .	Byte	 0000017E CONST	
+LTRL35 . . . . . . . . . . . . .	Byte	 00000153 CONST	
+LTRL36 . . . . . . . . . . . . .	Byte	 00000160 CONST	
+LTRL37 . . . . . . . . . . . . .	Byte	 00000166 CONST	
+LTRL38 . . . . . . . . . . . . .	Byte	 00000175 CONST	
 LTRL3  . . . . . . . . . . . . .	Word	 00000027 CONST	
 LTRL4  . . . . . . . . . . . . .	Byte	 00000029 CONST	
 LTRL5  . . . . . . . . . . . . .	Word	 00000040 CONST	
@@ -907,26 +894,25 @@ mainstr  . . . . . . . . . . . .	DWord	 0000010A _DATA
 mains  . . . . . . . . . . . . .	Word	 00000114 _DATA	
 maxres . . . . . . . . . . . . .	Word	 00000102 _DATA	
 newline  . . . . . . . . . . . .	Byte	 00000000 CONST	
-standab  . . . . . . . . . . . .	Word	 00000150 _DATA	
+standab  . . . . . . . . . . . .	Word	 0000014E _DATA	
 standasd . . . . . . . . . . . .	Word	 0000012C _DATA	
-standc . . . . . . . . . . . . .	DWord	 00000136 _DATA	
+standc . . . . . . . . . . . . .	DWord	 00000134 _DATA	
 standdsa . . . . . . . . . . . .	DWord	 00000124 _DATA	
-standisi . . . . . . . . . . . .	Word	 0000014E _DATA	
-standk . . . . . . . . . . . . .	Word	 0000013A _DATA	
-standlen . . . . . . . . . . . .	DWord	 0000013C _DATA	
+standisi . . . . . . . . . . . .	Word	 0000014C _DATA	
+standk . . . . . . . . . . . . .	Word	 00000138 _DATA	
+standlen . . . . . . . . . . . .	DWord	 0000013A _DATA	
 standmh  . . . . . . . . . . . .	DWord	 00000118 _DATA	
 standmiv . . . . . . . . . . . .	DWord	 00000120 _DATA	
 standmi  . . . . . . . . . . . .	DWord	 0000011C _DATA	
-standname  . . . . . . . . . . .	DWord	 00000144 _DATA	
-standnumb  . . . . . . . . . . .	Word	 00000140 _DATA	
-standpoi . . . . . . . . . . . .	Word	 0000014C _DATA	
-standremainder . . . . . . . . .	Word	 00000142 _DATA	
-standr . . . . . . . . . . . . .	Word	 00000134 _DATA	
+standname  . . . . . . . . . . .	DWord	 00000142 _DATA	
+standnumb  . . . . . . . . . . .	Word	 0000013E _DATA	
+standpoi . . . . . . . . . . . .	Word	 0000014A _DATA	
+standremainder . . . . . . . . .	Word	 00000140 _DATA	
+standr . . . . . . . . . . . . .	Word	 00000132 _DATA	
 standstr . . . . . . . . . . . .	DWord	 00000104 _DATA	
-standsurname . . . . . . . . . .	DWord	 00000148 _DATA	
-standu . . . . . . . . . . . . .	Word	 00000130 _DATA	
-standv . . . . . . . . . . . . .	Word	 00000132 _DATA	
-standx . . . . . . . . . . . . .	Word	 0000012E _DATA	
+standsurname . . . . . . . . . .	DWord	 00000146 _DATA	
+standu . . . . . . . . . . . . .	Word	 0000012E _DATA	
+standv . . . . . . . . . . . . .	Word	 00000130 _DATA	
 standytr . . . . . . . . . . . .	DWord	 00000128 _DATA	
 temp . . . . . . . . . . . . . .	Word	 00000000 _DATA	
 
