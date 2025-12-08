@@ -1,0 +1,3 @@
+﻿  StaticLibrary.cpp
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\StaticLibrary\StaticLibrary.cpp(73,19): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  StaticLibrary.vcxproj -> D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\Debug\StaticLibrary.lib

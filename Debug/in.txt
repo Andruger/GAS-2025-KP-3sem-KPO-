@@ -1,0 +1,156 @@
+number function max(number x, number y)
+[
+	var number  res;
+	is: x > y #
+	istrue [res = x;]
+	isfalse [res = y;]#
+	return res;
+]
+
+proc function stand(line a, line b)
+[
+	var line str;
+	str = concat(a,b);
+        output "Result: ";
+	output str;
+	nextline;
+	return;
+]
+
+
+
+main[
+        
+	output "Number at sixteen format: ";
+	var number six = 0x4a;
+	output six;
+	nextline;
+	output "----------------------";
+	nextline;
+
+
+	var line str;
+	var number abc = 2;
+	var number abcd = 4;
+
+
+	var number f = -4;
+	var number s = 2;
+	var number finish;
+	finish = f / s;
+	output "Result of division: "; 
+	output finish;
+	nextline;
+	output "----------------------";
+	nextline;
+
+	
+	output "("; output abc; output ">="; output abcd; output ") :";
+	
+	is: abc ~ abcd #
+	istrue [str="True";]
+	isfalse [str="False";]#
+	output str;
+	nextline;
+	output "----------------------";
+	nextline;
+
+
+
+	var char mh = 'H';
+	var char mi = 'i';
+	var char miv = '!';
+	output mh;
+	output mi;
+	output miv;
+	nextline;
+	output "----------------------";
+	nextline;
+
+
+	var line dsa = "False";
+	var line ytr = "False";
+	output "Compare: ";
+	var number  asd;
+	asd=compare(dsa,ytr);
+	is: asd & 1 #
+	istrue [output "The lines are the same";]
+	isfalse [output "The lines are not the same";]#
+	nextline;
+	output "----------------------";
+	nextline;
+
+
+	output "Random number: ";
+	var number x;
+	x = rnd(1, 10);
+	output x;
+	nextline;
+	output "----------------------";
+	nextline;
+
+	
+	var number  u = 5;
+	var number  v = 7;
+	var number  r;
+	output "Arithmetic expression:  ";
+	r=u+v*2-(4+4)/2 + max(5, 8);
+	output r;
+	nextline;
+	output "----------------------";
+	nextline;
+
+
+	var line c = "123";	
+    	output "Converting a string to a number: ";
+    	output aton(c);
+    	nextline;
+	output "----------------------";
+	nextline;
+
+	
+	var number k;
+	var line len="I love BSTU";
+    	output "Line length: ";
+	output slength(len);
+	nextline;
+	output "----------------------";
+	nextline;
+
+        
+    	var number numb = 56;
+	var number remainder;
+	remainder = numb % 9;
+	output "Remainder after division 56 by 9: ";
+	output remainder;
+	nextline;
+	output "----------------------";
+	nextline;
+
+
+	
+	
+	var line name ="Andreyeee ";
+	var line surname ="Gerasimovich";
+
+	
+	var number poi = 4;
+	var number isi = 4;
+	is: poi @ isi #
+	istrue [stand(name,surname);]
+	isfalse [output "Error";]#
+	output "----------------------";
+	nextline;
+
+
+ 	var number  ab = 10;
+	output "Cycle from 2 to 10: ";
+	is: ab < 10 #
+	cycle [
+		output ab;
+		output " ";
+		ab = ab + 2;
+	]#
+	output ab;
+	nextline;
+]

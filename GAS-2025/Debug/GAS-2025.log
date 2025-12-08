@@ -1,0 +1,21 @@
+﻿  FST.cpp
+  GAS-2025.cpp
+  GRB.cpp
+  Generator.cpp
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\GAS-2025\Generator.cpp(258,15): warning C4129: ".": нераспознанная escape-последовательность символов
+  IT.cpp
+  LexAnalysis.cpp
+  MFST.cpp
+  PolishNotation.cpp
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\GAS-2025\PolishNotation.cpp(39,39): warning C4018: <: несоответствие типов со знаком и без знака
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\GAS-2025\PolishNotation.cpp(176,46): warning C4554: "&": проверьте приоритет операторов на ошибки; для уточнения приоритета используйте скобки
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\GAS-2025\PolishNotation.cpp(176,79): warning C4554: "&": проверьте приоритет операторов на ошибки; для уточнения приоритета используйте скобки
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\GAS-2025\PolishNotation.cpp(176,105): warning C4554: "&": проверьте приоритет операторов на ошибки; для уточнения приоритета используйте скобки
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\GAS-2025\PolishNotation.cpp(176,132): warning C4554: "&": проверьте приоритет операторов на ошибки; для уточнения приоритета используйте скобки
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\GAS-2025\PolishNotation.cpp(176,158): warning C4554: "&": проверьте приоритет операторов на ошибки; для уточнения приоритета используйте скобки
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\GAS-2025\PolishNotation.cpp(176,188): warning C4554: "&": проверьте приоритет операторов на ошибки; для уточнения приоритета используйте скобки
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\GAS-2025\PolishNotation.cpp(176,217): warning C4554: "&": проверьте приоритет операторов на ошибки; для уточнения приоритета используйте скобки
+D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\GAS-2025\PolishNotation.cpp(176,241): warning C4554: "&": проверьте приоритет операторов на ошибки; для уточнения приоритета используйте скобки
+  SemAnalysis.cpp
+  Создание кода...
+  GAS-2025.vcxproj -> D:\GAS-2025\GAS-2025-KP-3sem-KPO--ddc88626f176467a9a59ebd610cf15a4505b9c98\Debug\GAS-2025.exe

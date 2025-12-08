@@ -1,0 +1,13 @@
+Release/
+x64/
+.vs/
+*.sdf
+*.opensdf
+*.db
+*.ipch
+*.obj
+*.exe
+*.ilk
+*.pdb
+*.tlog
+*.idb
