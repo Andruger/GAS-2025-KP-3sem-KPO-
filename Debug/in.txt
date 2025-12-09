@@ -22,7 +22,7 @@ proc function stand(line a, line b)
 main[
         
 	output "Number at sixteen format: ";
-	new number six = 0x4a;
+	new number six = 0x3a;
 	output six;
 	nextline;
 	output "----------------------";
@@ -143,11 +143,11 @@ main[
 
  	new number  ab = 2;
 	output "Cycle  to 10: ";
-	cycle [
+	do [
 		output ab;
 		output " ";
 		ab = ab + 2;
-	]# is: ab < 10 ;
+	]# is: 0 ;
 
 	output ab;
 	nextline;

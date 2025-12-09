@@ -75,9 +75,11 @@ namespace Gener
 				switch (LEXEMA(j))
 				{
 				case LEX_LITERAL:
+				case LEX_LITERAL_HEX:
 				case LEX_ID:
 				{
-					if (ITENTRY(j).idtype == IT::IDTYPE::F || ITENTRY(j).idtype == IT::IDTYPE::S) // вызов функции
+					if (tables.lextable.table[j].idxTI != NULLIDX_TI && 
+						(ITENTRY(j).idtype == IT::IDTYPE::F || ITENTRY(j).idtype == IT::IDTYPE::S)) // вызов функции
 					{
 						str = str + genCallFuncCode(tables, log, j); // вызов, результат в EAX
 						str = str + "push eax\n";
@@ -85,14 +87,17 @@ namespace Gener
 						break;
 					}
 					else {
-						if (ITENTRY(j).iddatatype == IT::IDDATATYPE::SHORT)
+						if (tables.lextable.table[j].idxTI != NULLIDX_TI)
 						{
-							// FIX: Расширяем word до dword
-							str = str + "movsx eax, word ptr " + ITENTRY(j).id + "\n";
-							str = str + "push eax\n";
+							if (ITENTRY(j).iddatatype == IT::IDDATATYPE::SHORT)
+							{
+								// FIX: Расширяем word до dword
+								str = str + "movsx eax, word ptr " + ITENTRY(j).id + "\n";
+								str = str + "push eax\n";
+							}
+							else
+								str = str + "push " + ITENTRY(j).id + "\n";
 						}
-						else
-							str = str + "push " + ITENTRY(j).id + "\n";
 					}
 					break;
 				}
@@ -212,28 +217,91 @@ namespace Gener
 	string genCycleConditionCode(Lexer::LEX& tables, int i, int cycleNum)
 	{
 		string str;
-		IT::Entry lft = ITENTRY(i + 1);
-		IT::Entry rgt = ITENTRY(i + 3);
-
-		string movInstr = (lft.iddatatype == IT::IDDATATYPE::SHORT) ? "mov dx, word ptr " : "mov edx, ";
-		string cmpInstr = (rgt.iddatatype == IT::IDDATATYPE::SHORT) ? "cmp dx, word ptr " : "cmp edx, ";
-		str = str + movInstr + lft.id + "\n" + cmpInstr + rgt.id + "\n";
-
-		string jmpCmd;
-		switch (LEXEMA(i + 2))
+		
+		// Проверяем, есть ли оператор сравнения после is:
+		// Если следующий элемент - оператор сравнения, это обычное сравнение
+		// Если следующий элемент - true/false/literal/id, это простое условие
+		
+		if (i + 1 < tables.lextable.size)
 		{
-		case LEX_MORE:  jmpCmd = "jg";  break;
-		case LEX_LESS:   jmpCmd = "jl";  break;
-		case LEX_EQUALS:    jmpCmd = "jz";  break;
-		case LEX_NOTEQUALS:   jmpCmd = "jnz";  break;
-		case LEX_MOREEQUALS:   jmpCmd = "jge";  break;
-		case LEX_LESSEQUALS:   jmpCmd = "jle";  break;
+			char nextLex = LEXEMA(i + 1);
+			
+			// Простое условие: true, false, литерал или идентификатор без оператора
+			if (nextLex == LEX_TRUE)
+			{
+				// Бесконечный цикл - всегда переходим обратно
+				str = str + "jmp do" + itoS(cycleNum) + "\n";
+				str = str + "donext" + itoS(cycleNum) + ":";
+				return str;
+			}
+			else if (nextLex == LEX_FALSE)
+			{
+				// Цикл никогда не выполняется - сразу выходим
+				str = str + "jmp donext" + itoS(cycleNum) + "\n";
+				str = str + "donext" + itoS(cycleNum) + ":";
+				return str;
+			}
+			else if (nextLex == LEX_LITERAL || nextLex == LEX_ID || nextLex == LEX_LITERAL_HEX)
+			{
+				// Литерал или идентификатор - проверяем значение
+				if (tables.lextable.table[i + 1].idxTI != NULLIDX_TI)
+				{
+					IT::Entry entry = ITENTRY(i + 1);
+					if (entry.iddatatype == IT::IDDATATYPE::SHORT)
+					{
+						short value = entry.value.vnum;
+						
+						// Если значение != 0, цикл бесконечный
+						if (value != 0)
+						{
+							str = str + "jmp do" + itoS(cycleNum) + "\n";
+						}
+						else
+						{
+							str = str + "jmp donext" + itoS(cycleNum) + "\n";
+						}
+						str = str + "donext" + itoS(cycleNum) + ":";
+						return str;
+					}
+				}
+			}
 		}
+		
+		// Обычное сравнение с оператором (проверяем, что есть оператор)
+		if (i + 2 < tables.lextable.size && 
+			(LEXEMA(i + 2) == LEX_MORE || LEXEMA(i + 2) == LEX_LESS || 
+			 LEXEMA(i + 2) == LEX_EQUALS || LEXEMA(i + 2) == LEX_NOTEQUALS ||
+			 LEXEMA(i + 2) == LEX_MOREEQUALS || LEXEMA(i + 2) == LEX_LESSEQUALS))
+		{
+			if (tables.lextable.table[i + 1].idxTI != NULLIDX_TI && 
+				tables.lextable.table[i + 3].idxTI != NULLIDX_TI)
+			{
+				IT::Entry lft = ITENTRY(i + 1);
+				IT::Entry rgt = ITENTRY(i + 3);
 
-		str = str + "\n" + jmpCmd + " cycle" + itoS(cycleNum);
-		str = str + "\ncyclenext" + itoS(cycleNum) + ":";
+				string movInstr = (lft.iddatatype == IT::IDDATATYPE::SHORT) ? "mov dx, word ptr " : "mov edx, ";
+				string cmpInstr = (rgt.iddatatype == IT::IDDATATYPE::SHORT) ? "cmp dx, word ptr " : "cmp edx, ";
+				str = str + movInstr + lft.id + "\n" + cmpInstr + rgt.id + "\n";
 
-		return str;
+				string jmpCmd;
+				switch (LEXEMA(i + 2))
+				{
+				case LEX_MORE:  jmpCmd = "jg";  break;
+				case LEX_LESS:   jmpCmd = "jl";  break;
+				case LEX_EQUALS:    jmpCmd = "jz";  break;
+				case LEX_NOTEQUALS:   jmpCmd = "jnz";  break;
+				case LEX_MOREEQUALS:   jmpCmd = "jge";  break;
+				case LEX_LESSEQUALS:   jmpCmd = "jle";  break;
+				}
+
+				str = str + "\n" + jmpCmd + " do" + itoS(cycleNum);
+				str = str + "\ndonext" + itoS(cycleNum) + ":";
+				return str;
+			}
+		}
+		
+		// Если ничего не подошло, возвращаем пустую строку (ошибка)
+		return "";
 	}
 
 	string genConditionCode(Lexer::LEX& tables, int i, string& cyclecode)
@@ -241,57 +309,145 @@ namespace Gener
 		string str;
 		conditionnum++;
 		cyclecode.clear();
-		IT::Entry lft = ITENTRY(i + 1);
-		IT::Entry rgt = ITENTRY(i + 3);
+		
 		bool w = false, r = false, c = false;
 		string wstr, rstr, rstr2;
 
-		for (int j = i + 5; LEXEMA(j) != LEX_DIEZ; j++)
+		// Проверяем, есть ли оператор сравнения после is:
+		if (i + 1 < tables.lextable.size)
 		{
-			if (LEXEMA(j) == LEX_ISTRUE) r = true;
-			if (LEXEMA(j) == LEX_ISFALSE) w = true;
-			if (LEXEMA(j) == LEX_CYCLE) c = true;
+			char nextLex = LEXEMA(i + 1);
+			
+			// Простое условие: true, false, литерал или идентификатор без оператора
+			if (nextLex == LEX_TRUE)
+			{
+				// Всегда истина - всегда переходим в istrue блок
+				for (int j = i + 2; j < tables.lextable.size && LEXEMA(j) != LEX_DIEZ; j++)
+				{
+					if (LEXEMA(j) == LEX_ISTRUE) r = true;
+					if (LEXEMA(j) == LEX_ISFALSE) w = true;
+				}
+				if (r) str = str + "jmp right" + itoS(conditionnum) + "\n";
+				if (w) str = str + "wrong" + itoS(conditionnum) + ":\n";
+				if (r) str = str + "right" + itoS(conditionnum) + ":";
+				// Не создаем метку next здесь - она будет создана в case LEX_DIEZ
+				return str;
+			}
+			else if (nextLex == LEX_FALSE)
+			{
+				// Всегда ложь - всегда переходим в isfalse блок или пропускаем
+				for (int j = i + 2; j < tables.lextable.size && LEXEMA(j) != LEX_DIEZ; j++)
+				{
+					if (LEXEMA(j) == LEX_ISTRUE) r = true;
+					if (LEXEMA(j) == LEX_ISFALSE) w = true;
+				}
+				if (w) str = str + "jmp wrong" + itoS(conditionnum) + "\n";
+				if (r) str = str + "right" + itoS(conditionnum) + ":\n";
+				if (w) str = str + "wrong" + itoS(conditionnum) + ":";
+				// Не создаем метку next здесь - она будет создана в case LEX_DIEZ
+				return str;
+			}
+			else if (nextLex == LEX_LITERAL || nextLex == LEX_ID || nextLex == LEX_LITERAL_HEX)
+			{
+				// Литерал или идентификатор - проверяем значение
+				if (tables.lextable.table[i + 1].idxTI != NULLIDX_TI)
+				{
+					IT::Entry entry = ITENTRY(i + 1);
+					if (entry.iddatatype == IT::IDDATATYPE::SHORT)
+					{
+						short value = entry.value.vnum;
+						
+						for (int j = i + 2; j < tables.lextable.size && LEXEMA(j) != LEX_DIEZ; j++)
+						{
+							if (LEXEMA(j) == LEX_ISTRUE) r = true;
+							if (LEXEMA(j) == LEX_ISFALSE) w = true;
+						}
+						
+						// Если значение != 0, условие истинно
+						if (value != 0)
+						{
+							if (r) str = str + "jmp right" + itoS(conditionnum) + "\n";
+							if (w) str = str + "wrong" + itoS(conditionnum) + ":\n";
+							if (r) str = str + "right" + itoS(conditionnum) + ":";
+							// Не создаем метку next здесь - она будет создана в case LEX_DIEZ
+						}
+						else
+						{
+							if (w) str = str + "jmp wrong" + itoS(conditionnum) + "\n";
+							if (r) str = str + "right" + itoS(conditionnum) + ":\n";
+							if (w) str = str + "wrong" + itoS(conditionnum) + ":";
+							// Не создаем метку next здесь - она будет создана в case LEX_DIEZ
+						}
+						return str;
+					}
+				}
+			}
 		}
-
-		string movInstr = (lft.iddatatype == IT::IDDATATYPE::SHORT) ? "mov dx, word ptr " : "mov edx, ";
-		string cmpInstr = (rgt.iddatatype == IT::IDDATATYPE::SHORT) ? "cmp dx, word ptr " : "cmp edx, ";
-		str = str + movInstr + lft.id + "\n" + cmpInstr + rgt.id + "\n";
-
-		switch (LEXEMA(i + 2))
+		
+		// Обычное сравнение с оператором (проверяем, что есть оператор)
+		if (i + 2 < tables.lextable.size && 
+			(LEXEMA(i + 2) == LEX_MORE || LEXEMA(i + 2) == LEX_LESS || 
+			 LEXEMA(i + 2) == LEX_EQUALS || LEXEMA(i + 2) == LEX_NOTEQUALS ||
+			 LEXEMA(i + 2) == LEX_MOREEQUALS || LEXEMA(i + 2) == LEX_LESSEQUALS))
 		{
-		case LEX_MORE:  rstr = "jg";  wstr = "jl";  break;
-		case LEX_LESS:   rstr = "jl";  wstr = "jg";  break;
-		case LEX_EQUALS:    rstr = "jz";  wstr = "jnz";  break;
-		case LEX_NOTEQUALS:   rstr = "jnz";  wstr = "jz";  break;
-		case LEX_MOREEQUALS:   rstr = "jz"; rstr2 = "jg";  wstr = "jnz";  break;
-		case LEX_LESSEQUALS:   rstr = "jz"; rstr2 = "jl";  wstr = "jnz";  break;
-		}
+			if (i + 3 < tables.lextable.size && 
+				tables.lextable.table[i + 1].idxTI != NULLIDX_TI && 
+				tables.lextable.table[i + 3].idxTI != NULLIDX_TI)
+			{
+				IT::Entry lft = ITENTRY(i + 1);
+				IT::Entry rgt = ITENTRY(i + 3);
 
-		if (LEXEMA(i + 2) == LEX_MORE || LEXEMA(i + 2) == LEX_LESS || LEXEMA(i + 2) == LEX_EQUALS || LEXEMA(i + 2) == LEX_NOTEQUALS) {
-			if (!c && r) str = str + "\n" + rstr + " right" + itoS(conditionnum);
-			if (!c && w) str = str + "\n" + wstr + " wrong" + itoS(conditionnum);
-		}
-		if (LEXEMA(i + 2) == LEX_MOREEQUALS || LEXEMA(i + 2) == LEX_LESSEQUALS) {
-			if (!c && r) str = str + "\n" + rstr + " right" + itoS(conditionnum) + "\n" + rstr2 + " right" + itoS(conditionnum);
-			if (!c && w) str = str + "\n" + wstr + " wrong" + itoS(conditionnum);
-		}
-		if (c)
-		{
-			string jmpCmd;
-			if (LEXEMA(i + 2) == LEX_MORE || LEXEMA(i + 2) == LEX_LESS || LEXEMA(i + 2) == LEX_EQUALS || LEXEMA(i + 2) == LEX_NOTEQUALS) {
-				jmpCmd = rstr;
+				for (int j = i + 5; j < tables.lextable.size && LEXEMA(j) != LEX_DIEZ; j++)
+				{
+					if (LEXEMA(j) == LEX_ISTRUE) r = true;
+					if (LEXEMA(j) == LEX_ISFALSE) w = true;
+					if (LEXEMA(j) == LEX_CYCLE) c = true;
+				}
+
+				string movInstr = (lft.iddatatype == IT::IDDATATYPE::SHORT) ? "mov dx, word ptr " : "mov edx, ";
+				string cmpInstr = (rgt.iddatatype == IT::IDDATATYPE::SHORT) ? "cmp dx, word ptr " : "cmp edx, ";
+				str = str + movInstr + lft.id + "\n" + cmpInstr + rgt.id + "\n";
+
+				switch (LEXEMA(i + 2))
+				{
+				case LEX_MORE:  rstr = "jg";  wstr = "jl";  break;
+				case LEX_LESS:   rstr = "jl";  wstr = "jg";  break;
+				case LEX_EQUALS:    rstr = "jz";  wstr = "jnz";  break;
+				case LEX_NOTEQUALS:   rstr = "jnz";  wstr = "jz";  break;
+				case LEX_MOREEQUALS:   rstr = "jz"; rstr2 = "jg";  wstr = "jnz";  break;
+				case LEX_LESSEQUALS:   rstr = "jz"; rstr2 = "jl";  wstr = "jnz";  break;
+				}
+
+				if (LEXEMA(i + 2) == LEX_MORE || LEXEMA(i + 2) == LEX_LESS || LEXEMA(i + 2) == LEX_EQUALS || LEXEMA(i + 2) == LEX_NOTEQUALS) {
+					if (!c && r) str = str + "\n" + rstr + " right" + itoS(conditionnum);
+					if (!c && w) str = str + "\n" + wstr + " wrong" + itoS(conditionnum);
+				}
+				if (LEXEMA(i + 2) == LEX_MOREEQUALS || LEXEMA(i + 2) == LEX_LESSEQUALS) {
+					if (!c && r) str = str + "\n" + rstr + " right" + itoS(conditionnum) + "\n" + rstr2 + " right" + itoS(conditionnum);
+					if (!c && w) str = str + "\n" + wstr + " wrong" + itoS(conditionnum);
+				}
+				if (c)
+				{
+					string jmpCmd;
+					if (LEXEMA(i + 2) == LEX_MORE || LEXEMA(i + 2) == LEX_LESS || LEXEMA(i + 2) == LEX_EQUALS || LEXEMA(i + 2) == LEX_NOTEQUALS) {
+						jmpCmd = rstr;
+					}
+					else if (LEXEMA(i + 2) == LEX_MOREEQUALS) {
+						jmpCmd = "jge";
+					}
+					else if (LEXEMA(i + 2) == LEX_LESSEQUALS) {
+						jmpCmd = "jle";
+					}
+					cyclecode = str + "\n" + jmpCmd + " do" + itoS(conditionnum);
+					str = "";
+				}
+				else if (!r || !w)  str = str + "\njmp next" + itoS(conditionnum);
+				return str;
 			}
-			else if (LEXEMA(i + 2) == LEX_MOREEQUALS) {
-				jmpCmd = "jge";
-			}
-			else if (LEXEMA(i + 2) == LEX_LESSEQUALS) {
-				jmpCmd = "jle";
-			}
-			cyclecode = str + "\n" + jmpCmd + " cycle" + itoS(conditionnum);
-			str = "";
 		}
-		else if (!r || !w)  str = str + "\njmp next" + itoS(conditionnum);
-		return str;
+		
+		// Если ничего не подошло, возвращаем пустую строку (ошибка)
+		return "";
 	}
 
 	vector <string> startFillVector(Lexer::LEX& tables)
@@ -349,11 +505,13 @@ namespace Gener
 			{
 			case LEX_MAIN:
 			{
+				conditionnum = 0; // Сбрасываем счетчик условий для main
 				str = str + SEPSTR("MAIN") + "main PROC";
 				break;
 			}
 			case LEX_FUNCTION:
 			{
+				conditionnum = 0; // Сбрасываем счетчик условий для новой функции
 				funcname = ITENTRY(i + 1).id;
 				pcount = ITENTRY(i + 1).value.params.count;
 				funcRetType = ITENTRY(i + 1).iddatatype;
@@ -393,7 +551,8 @@ namespace Gener
 			case LEX_BRACELET:
 			{
 				if (LEXEMA(i + 1) == LEX_ISFALSE || LEXEMA(i + 1) == LEX_ISTRUE)
-					str = str + "jmp next" + itoS(conditionnum);
+					str = str + "jmp next" + itoS(conditionnum) + "\n";
+				break;
 			}
 			case LEX_DIEZ:
 			{
@@ -401,6 +560,40 @@ namespace Gener
 				{
 					bool c = false;
 					bool isCycleEnd = false;
+					bool isSimpleCondition = false; // Проверяем, было ли простое условие (true/false/literal)
+					
+					// Ищем условие перед этим # и проверяем, простое ли оно
+					for (int j = i - 1; j >= 0 && j >= i - 10; j--)
+					{
+						if (LEXEMA(j) == LEX_CONDITION)
+						{
+							// Проверяем, что идет после is:
+							if (j + 1 < tables.lextable.size)
+							{
+								char afterIs = LEXEMA(j + 1);
+								// Если после is: сразу true/false/literal/id без оператора - это простое условие
+								if (afterIs == LEX_TRUE || afterIs == LEX_FALSE || 
+									afterIs == LEX_LITERAL || afterIs == LEX_ID || afterIs == LEX_LITERAL_HEX)
+								{
+									// Проверяем, есть ли оператор сравнения после
+									if (j + 2 < tables.lextable.size)
+									{
+										char afterValue = LEXEMA(j + 2);
+										if (afterValue != LEX_MORE && afterValue != LEX_LESS && 
+											afterValue != LEX_EQUALS && afterValue != LEX_NOTEQUALS &&
+											afterValue != LEX_MOREEQUALS && afterValue != LEX_LESSEQUALS)
+										{
+											isSimpleCondition = true;
+										}
+									}
+									else
+										isSimpleCondition = true;
+								}
+							}
+							break;
+						}
+					}
+					
 					if (LEXEMA(i + 1) == LEX_CONDITION)
 					{
 						for (int j = i - 2; j >= 0 && j >= i - 20; j--)
@@ -421,8 +614,11 @@ namespace Gener
 					if (isCycleEnd)
 						str = "";
 					else if (c)
-						str = cyclecode + "\ncyclenext" + itoS(conditionnum) + ":";
-					else  str += "next" + itoS(conditionnum) + ":";
+						str = cyclecode + "\ndonext" + itoS(conditionnum) + ":";
+					else if (!isSimpleCondition)
+						str += "next" + itoS(conditionnum) + ":";
+					// Для простых условий (true/false/literal без оператора) метка next не создается,
+					// так как все метки уже созданы в genConditionCode
 				}
 				break;
 			}
@@ -463,10 +659,10 @@ namespace Gener
 					conditionnum++;
 					if (diezPos >= 0)
 						cycleNumMap[diezPos] = conditionnum;
-					str = str + "cycle" + itoS(conditionnum) + ":";
+					str = str + "do" + itoS(conditionnum) + ":";
 				}
 				else
-					str = str + "cycle" + itoS(conditionnum) + ":";
+					str = str + "do" + itoS(conditionnum) + ":";
 				break;
 			}
 			case LEX_EQUAL:

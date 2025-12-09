@@ -35,6 +35,8 @@
 #define LEX_NOTEQUALS	 '!'	//  
 #define LEX_MOREEQUALS	 '~'	//    
 #define LEX_LESSEQUALS	 '@'	//    
+#define LEX_TRUE		 'T'	// true
+#define LEX_FALSE		 'F'	// false
 #define	LEXEMA_FIXSIZE   1	    //
 #define	MAXSIZE_LT		 4096	//  
 #define	NULLDX_TI	 0xffffffff	// 

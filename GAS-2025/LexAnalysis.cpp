@@ -41,6 +41,8 @@ namespace Lexer
 		{ LEX_CYCLE, FST::FST(GRAPH_CYCLE) },
 		{ LEX_ISFALSE, FST::FST(GRAPH_ISFALSE) },
 		{ LEX_ISTRUE, FST::FST(GRAPH_ISTRUE) },
+		{ LEX_TRUE, FST::FST(GRAPH_TRUE) },        // Проверяем перед ID
+		{ LEX_FALSE, FST::FST(GRAPH_FALSE) },      // Проверяем перед ID
 		{ LEX_ID, FST::FST(GRAPH_ID) },
 		{ LEX_LITERAL_HEX, FST::FST(GRAPH_HEX_LITERAL) }
 	};
@@ -408,39 +410,61 @@ namespace Lexer
 
 					case LEX_LITERAL_HEX:
 					{
-						int value;
-						if (lexema == LEX_LITERAL_HEX) {
-							value = DecimicalNotation(curword, 16);
-						}
-						else {
-							value = DecimicalNotation(curword, 2);
-						}
-						tables.idtable.table[tables.idtable.size - 1].value.vnum = (short)value;
-						bool isNegative = value < 0;
+						// Обрабатываем hex-литерал - преобразуем в десятичную строку
+						int hexValue = DecimicalNotation(curword, 16);
+						
+						// Преобразуем hex в десятичную строку
+						bool isNegative = hexValue < 0;
+						int absValue = isNegative ? -hexValue : hexValue;
+						char decStr[16];
+						sprintf_s(decStr, "%d", absValue);
 						if (isNegative) {
-							value = -value;
+							char temp[16];
+							temp[0] = '-';
+							strcpy_s(temp + 1, sizeof(temp) - 1, decStr);
+							strcpy_s(decStr, temp);
 						}
-						int x = 0;
-						char* str = (char*)malloc(12 * sizeof(char));
-						while (value > 9) {
-							str[x++] = (value % 10) + '0';
-							value = value / 10;
+						
+						// Обрабатываем как обычный литерал
+						char id[STR_MAXSIZE] = "";
+						idxTI = NULLDX_TI;
+						if (*nextword == LEX_LEFTHESIS)
+							isFunc = true;
+						char* idtype = (isFunc && i > 1) ?
+							in.words[i - 2].word : in.words[i - 1].word;
+						if (!isFunc && !scopes.empty())
+							strncpy_s(id, scopes.top(), MAXSIZE_ID);
+						strncat(id, decStr, MAXSIZE_ID);
+						if (isLiteral(decStr))
+							strcpy_s(id, decStr); // Литерал идентифицируется по числу
+						
+						// Создаем или находим литерал в таблице
+						IT::Entry* itentry = getEntry(tables, LEX_LITERAL, id, idtype, isParam, isFunc, log, curline, lex_ok);
+						if (itentry != nullptr)
+						{
+							IT::Add(tables.idtable, *itentry);
+							idxTI = tables.idtable.size - 1;
 						}
-						str[x++] = value + '0';
-						if (isNegative) {
-							str[x++] = '-';
+						else
+						{
+							idxTI = IT::isId(tables.idtable, id);
 						}
-						str[x] = '\0';
-						char t;
-						for (int u = 0; u < x / 2; u++) {
-							t = str[u];
-							str[u] = str[x - 1 - u];
-							str[x - 1 - u] = t;
-						}
-						strcpy_s(curword, "");
-						strcat(curword, str);
-						free(str);
-						lexema = 'l';
+						lexema = LEX_LITERAL; // Устанавливаем лексему как LEX_LITERAL
+						break;
+					}
+
+					case LEX_TRUE:
+					{
+						// true - не добавляется в таблицу идентификаторов, обрабатывается напрямую
+						idxTI = NULLIDX_TI;
+						break;
+					}
+
+					case LEX_FALSE:
+					{
+						// false - не добавляется в таблицу идентификаторов, обрабатывается напрямую
+						idxTI = NULLIDX_TI;
+						break;
 					}
 
 					case LEX_ID:

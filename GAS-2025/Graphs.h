@@ -1,6 +1,6 @@
 #pragma once
 #include "FST.h"
-#define N_GRAPHS 20
+#define N_GRAPHS 22
 
 // ����� ��������� 
 #define GRAPH_SEPARATORS 2,\
@@ -193,12 +193,9 @@
 	FST::NODE(1,FST::RELATION('n',4)),\
 	FST::NODE()
 
-#define GRAPH_CYCLE 6, \
-	FST::NODE(1,FST::RELATION('c',1)),\
-	FST::NODE(1,FST::RELATION('y',2)),\
-	FST::NODE(1,FST::RELATION('c',3)),\
-	FST::NODE(1,FST::RELATION('l',4)),\
-	FST::NODE(1,FST::RELATION('e',5)),\
+#define GRAPH_CYCLE 3, \
+	FST::NODE(1,FST::RELATION('d',1)),\
+	FST::NODE(1,FST::RELATION('o',2)),\
 	FST::NODE()
 
 #define GRAPH_OUT 7, \
@@ -261,4 +258,19 @@
         FST::RELATION('e', 3), FST::RELATION('f', 3) \
     ), \
     FST::NODE()
+
+#define GRAPH_TRUE 5, \
+	FST::NODE(1, FST::RELATION('t',1)),\
+	FST::NODE(1, FST::RELATION('r',2)),\
+	FST::NODE(1, FST::RELATION('u',3)),\
+	FST::NODE(1, FST::RELATION('e',4)),\
+	FST::NODE()
+
+#define GRAPH_FALSE 6, \
+	FST::NODE(1, FST::RELATION('f',1)),\
+	FST::NODE(1, FST::RELATION('a',2)),\
+	FST::NODE(1, FST::RELATION('l',3)),\
+	FST::NODE(1, FST::RELATION('s',4)),\
+	FST::NODE(1, FST::RELATION('e',5)),\
+	FST::NODE()
 

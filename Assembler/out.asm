@@ -25,7 +25,7 @@ ExitProcess PROTO:DWORD
 		newline byte 13, 10, 0
 		LTRL1 byte 'Result: ', 0
 		LTRL2 byte 'Number at sixteen format: ', 0
-		LTRL3 sword 74
+		LTRL3 sword 58
 		LTRL4 byte '----------------------', 0
 		LTRL5 sword 2
 		LTRL6 sword 4
@@ -61,6 +61,7 @@ ExitProcess PROTO:DWORD
 		LTRL36 byte 'Error', 0
 		LTRL37 byte 'Cycle  to 10: ', 0
 		LTRL38 byte ' ', 0
+		LTRL39 sword 0
 .data
 		temp sword ?
 		buffer byte 256 dup(0)
@@ -101,11 +102,6 @@ max PROC,
 push ebx
 push edx
 ; ----------------------
-mov dx, word ptr maxx
-cmp dx, word ptr maxy
-
-jg right1
-jl wrong1
 right1:
 movsx eax, word ptr maxx
 push eax
@@ -114,6 +110,7 @@ pop ebx
 mov word ptr maxres, bx
 
 jmp next1
+
 wrong1:
 movsx eax, word ptr maxy
 push eax
@@ -270,18 +267,13 @@ call outlich
 push offset LTRL11
 call outrad
 
-mov dx, word ptr mainabc
-cmp dx, word ptr mainabcd
-
-jz right2
-jg right2
-jnz wrong2
-right2:
+right1:
 mov standstr, offset LTRL12
-jmp next2
-wrong2:
+jmp next1
+
+wrong1:
 mov standstr, offset LTRL13
-next2:
+next1:
 
 push standstr
 call outrad
@@ -338,23 +330,19 @@ push eax
 pop ebx
 mov word ptr standasd, bx
 
-mov dx, word ptr standasd
-cmp dx, word ptr LTRL18
-
-jz right3
-jnz wrong3
-right3:
+right2:
 
 push offset LTRL19
 call outrad
 
-jmp next3
-wrong3:
+jmp next2
+
+wrong2:
 
 push offset LTRL20
 call outrad
 
-next3:
+next2:
 push offset newline
 call outrad
 
@@ -568,25 +556,20 @@ push eax
 pop ebx
 mov word ptr standisi, bx
 
-mov dx, word ptr standpoi
-cmp dx, word ptr standisi
-
-jz right4
-jl right4
-jnz wrong4
-right4:
+right3:
 
 push standsurname
 push standname
 call stand
 
-jmp next4
-wrong4:
+jmp next3
+
+wrong3:
 
 push offset LTRL36
 call outrad
 
-next4:
+next3:
 
 push offset LTRL4
 call outrad
@@ -604,7 +587,7 @@ mov word ptr standab, bx
 push offset LTRL37
 call outrad
 
-cycle5:
+do4:
 
 movsx eax, word ptr standab
 push eax
@@ -626,11 +609,8 @@ push eax
 pop ebx
 mov word ptr standab, bx
 
-mov dx, word ptr standab
-cmp dx, word ptr LTRL22
-
-jl cycle5
-cyclenext5:
+jmp donext4
+donext4:
 
 movsx eax, word ptr standab
 push eax

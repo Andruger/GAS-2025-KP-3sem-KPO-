@@ -1,2 +1,4 @@
 ﻿  Assembling out.asm...
+LINK : warning LNK4098: библиотека по умолчанию "libucrt.lib" конфликтует с использованием других библиотек; используйте /NODEFAULTLIB:library
+StaticLibrary.lib(StaticLibrary.obj) : warning LNK4204: в "" отсутствуют отладочные данные для ссылок на модуль; компоновка объекта выполняется как при отсутствии отладочных данных
   Assembler.vcxproj -> D:\GAS-2025\GAS-2025-KP-3sem-KPO-\Debug\Assembler.exe
