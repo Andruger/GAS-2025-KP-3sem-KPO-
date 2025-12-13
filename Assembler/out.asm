@@ -24,31 +24,31 @@ ExitProcess PROTO:DWORD
 .const
 		newline byte 13, 10, 0
 		LTRL1 byte 'Result: ', 0
-		LTRL2 byte 'Number at sixteen format: ', 0
-		LTRL3 sword 58
-		LTRL4 byte '----------------------', 0
-		LTRL5 sword 2
-		LTRL6 sword 4
-		LTRL7 sword -4
-		LTRL8 byte 'Result of division: ', 0
-		LTRL9 byte '(', 0
-		LTRL10 byte '>=', 0
-		LTRL11 byte ') :', 0
-		LTRL12 byte 'True', 0
-		LTRL13 byte 'False', 0
-		LTRL14 byte 'H', 0
-		LTRL15 byte 'i', 0
-		LTRL16 byte '!', 0
-		LTRL17 byte 'Compare: ', 0
-		LTRL18 sword 1
-		LTRL19 byte 'The lines are the same', 0
-		LTRL20 byte 'The lines are not the same', 0
-		LTRL21 byte 'Random number: ', 0
-		LTRL22 sword 10
-		LTRL23 sword 5
-		LTRL24 sword 7
-		LTRL25 byte 'Arithmetic expression:  ', 0
-		LTRL26 sword 8
+		LTRL2 sword 5
+		LTRL3 sword 8
+		LTRL4 byte 'Number at sixteen format: ', 0
+		LTRL5 sword 58
+		LTRL6 byte '----------------------', 0
+		LTRL7 sword 2
+		LTRL8 sword 4
+		LTRL9 sword -4
+		LTRL10 byte 'Result of division: ', 0
+		LTRL11 byte '(', 0
+		LTRL12 byte '>=', 0
+		LTRL13 byte ') :', 0
+		LTRL14 byte 'True', 0
+		LTRL15 byte 'False', 0
+		LTRL16 byte 'H', 0
+		LTRL17 byte 'i', 0
+		LTRL18 byte '!', 0
+		LTRL19 byte 'Compare: ', 0
+		LTRL20 sword 1
+		LTRL21 byte 'The lines are the same', 0
+		LTRL22 byte 'The lines are not the same', 0
+		LTRL23 byte 'Random number: ', 0
+		LTRL24 sword 10
+		LTRL25 sword 7
+		LTRL26 byte 'Arithmetic expression:  ', 0
 		LTRL27 byte '123', 0
 		LTRL28 byte 'Converting a string to a number: ', 0
 		LTRL29 byte 'I love BSTU', 0
@@ -58,10 +58,11 @@ ExitProcess PROTO:DWORD
 		LTRL33 byte 'Remainder after division 56 by 9: ', 0
 		LTRL34 byte 'Andrey ', 0
 		LTRL35 byte 'Gerasimovich', 0
-		LTRL36 byte 'Error', 0
-		LTRL37 byte 'Cycle  to 10: ', 0
-		LTRL38 byte ' ', 0
-		LTRL39 sword 0
+		LTRL36 sword 6
+		LTRL37 byte 'Error', 0
+		LTRL38 byte 'Cycle  to 10: ', 0
+		LTRL39 byte ' ', 0
+		LTRL40 sword 0
 .data
 		temp sword ?
 		buffer byte 256 dup(0)
@@ -102,6 +103,10 @@ max PROC,
 push ebx
 push edx
 ; ----------------------
+mov dx, word ptr maxx
+cmp dx, word ptr maxy
+
+jle wrong1
 right1:
 movsx eax, word ptr maxx
 push eax
@@ -165,10 +170,20 @@ stand ENDP
 ;----------- MAIN ------------
 main PROC
 
-push offset LTRL2
+movsx eax, word ptr LTRL3
+push eax
+movsx eax, word ptr LTRL2
+push eax
+call max
+cwde
+push eax
+call outlich
+
+
+push offset LTRL4
 call outrad
 
-movsx eax, word ptr LTRL3
+movsx eax, word ptr LTRL5
 push eax
 
 pop ebx
@@ -183,31 +198,31 @@ push offset newline
 call outrad
 
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
 call outrad
 
-movsx eax, word ptr LTRL5
+movsx eax, word ptr LTRL7
 push eax
 
 pop ebx
 mov word ptr mainabc, bx
 
-movsx eax, word ptr LTRL6
+movsx eax, word ptr LTRL8
 push eax
 
 pop ebx
 mov word ptr mainabcd, bx
 
-movsx eax, word ptr LTRL7
+movsx eax, word ptr LTRL9
 push eax
 
 pop ebx
 mov word ptr mainf, bx
 
-movsx eax, word ptr LTRL5
+movsx eax, word ptr LTRL7
 push eax
 
 pop ebx
@@ -227,7 +242,7 @@ pop ebx
 mov word ptr mainfinish, bx
 
 
-push offset LTRL8
+push offset LTRL10
 call outrad
 
 
@@ -239,14 +254,14 @@ push offset newline
 call outrad
 
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
 call outrad
 
 
-push offset LTRL9
+push offset LTRL11
 call outrad
 
 
@@ -255,7 +270,7 @@ push eax
 call outlich
 
 
-push offset LTRL10
+push offset LTRL12
 call outrad
 
 
@@ -264,15 +279,19 @@ push eax
 call outlich
 
 
-push offset LTRL11
+push offset LTRL13
 call outrad
 
+mov dx, word ptr mainabc
+cmp dx, word ptr mainabcd
+
+jl wrong1
 right1:
-mov standstr, offset LTRL12
+mov standstr, offset LTRL14
 jmp next1
 
 wrong1:
-mov standstr, offset LTRL13
+mov standstr, offset LTRL15
 next1:
 
 push standstr
@@ -282,15 +301,15 @@ push offset newline
 call outrad
 
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
 call outrad
 
-mov standmh, offset LTRL14
-mov standmi, offset LTRL15
-mov standmiv, offset LTRL16
+mov standmh, offset LTRL16
+mov standmi, offset LTRL17
+mov standmiv, offset LTRL18
 
 push standmh
 call outrad
@@ -307,16 +326,16 @@ push offset newline
 call outrad
 
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
 call outrad
 
-mov standdsa, offset LTRL13
-mov standytr, offset LTRL13
+mov standdsa, offset LTRL15
+mov standytr, offset LTRL15
 
-push offset LTRL17
+push offset LTRL19
 call outrad
 
 
@@ -330,16 +349,20 @@ push eax
 pop ebx
 mov word ptr standasd, bx
 
+mov dx, word ptr standasd
+cmp dx, word ptr LTRL20
+
+jnz wrong2
 right2:
 
-push offset LTRL19
+push offset LTRL21
 call outrad
 
 jmp next2
 
 wrong2:
 
-push offset LTRL20
+push offset LTRL22
 call outrad
 
 next2:
@@ -347,20 +370,20 @@ push offset newline
 call outrad
 
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
 call outrad
 
 
-push offset LTRL21
+push offset LTRL23
 call outrad
 
 
-movsx eax, word ptr LTRL22
+movsx eax, word ptr LTRL24
 push eax
-movsx eax, word ptr LTRL18
+movsx eax, word ptr LTRL20
 push eax
 push offset buffer
 call rnd
@@ -372,33 +395,33 @@ push offset newline
 call outrad
 
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
 call outrad
 
-movsx eax, word ptr LTRL23
+movsx eax, word ptr LTRL2
 push eax
 
 pop ebx
 mov word ptr standu, bx
 
-movsx eax, word ptr LTRL24
+movsx eax, word ptr LTRL25
 push eax
 
 pop ebx
 mov word ptr standv, bx
 
 
-push offset LTRL25
+push offset LTRL26
 call outrad
 
 movsx eax, word ptr standu
 push eax
 movsx eax, word ptr standv
 push eax
-movsx eax, word ptr LTRL5
+movsx eax, word ptr LTRL7
 push eax
 pop ebx
 pop eax
@@ -408,15 +431,15 @@ pop ebx
 pop eax
 add eax, ebx
 push eax
-movsx eax, word ptr LTRL6
+movsx eax, word ptr LTRL8
 push eax
-movsx eax, word ptr LTRL6
+movsx eax, word ptr LTRL8
 push eax
 pop ebx
 pop eax
 add eax, ebx
 push eax
-movsx eax, word ptr LTRL5
+movsx eax, word ptr LTRL7
 push eax
 pop ebx
 pop eax
@@ -428,9 +451,9 @@ pop eax
 sub eax, ebx
 push eax
 
-movsx eax, word ptr LTRL26
+movsx eax, word ptr LTRL3
 push eax
-movsx eax, word ptr LTRL23
+movsx eax, word ptr LTRL2
 push eax
 call max
 cwde
@@ -452,7 +475,7 @@ push offset newline
 call outrad
 
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
@@ -475,7 +498,7 @@ push offset newline
 call outrad
 
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
@@ -498,7 +521,7 @@ push offset newline
 call outrad
 
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
@@ -536,7 +559,7 @@ push offset newline
 call outrad
 
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
@@ -544,18 +567,22 @@ call outrad
 
 mov standname, offset LTRL34
 mov standsurname, offset LTRL35
-movsx eax, word ptr LTRL6
+movsx eax, word ptr LTRL36
 push eax
 
 pop ebx
 mov word ptr standpoi, bx
 
-movsx eax, word ptr LTRL6
+movsx eax, word ptr LTRL8
 push eax
 
 pop ebx
 mov word ptr standisi, bx
 
+mov dx, word ptr standpoi
+cmp dx, word ptr standisi
+
+jg wrong3
 right3:
 
 push standsurname
@@ -566,25 +593,25 @@ jmp next3
 
 wrong3:
 
-push offset LTRL36
+push offset LTRL37
 call outrad
 
 next3:
 
-push offset LTRL4
+push offset LTRL6
 call outrad
 
 push offset newline
 call outrad
 
-movsx eax, word ptr LTRL5
+movsx eax, word ptr LTRL7
 push eax
 
 pop ebx
 mov word ptr standab, bx
 
 
-push offset LTRL37
+push offset LTRL38
 call outrad
 
 do4:
@@ -594,12 +621,12 @@ push eax
 call outlich
 
 
-push offset LTRL38
+push offset LTRL39
 call outrad
 
 movsx eax, word ptr standab
 push eax
-movsx eax, word ptr LTRL5
+movsx eax, word ptr LTRL7
 push eax
 pop ebx
 pop eax

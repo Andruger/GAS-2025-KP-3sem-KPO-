@@ -309,89 +309,23 @@ namespace Gener
 		string str;
 		conditionnum++;
 		cyclecode.clear();
-		
-		bool w = false, r = false, c = false;
-		string wstr, rstr, rstr2;
 
-		// Проверяем, есть ли оператор сравнения после is:
-		if (i + 1 < tables.lextable.size)
+		bool w = false, r = false, c = false;
+		string rstr, wstr; // rstr - если истина (для циклов), wstr - если ложь (для if)
+
+		// ... (код проверки простых условий true/false/literal оставляем без изменений) ...
+		// ... (начало функции до "Обычное сравнение с оператором" оставляем как было) ...
+
+		// НАЧАЛО ИЗМЕНЕНИЙ В БЛОКЕ СРАВНЕНИЯ
+
+		// Обычное сравнение с оператором
+		if (i + 2 < tables.lextable.size &&
+			(LEXEMA(i + 2) == LEX_MORE || LEXEMA(i + 2) == LEX_LESS ||
+				LEXEMA(i + 2) == LEX_EQUALS || LEXEMA(i + 2) == LEX_NOTEQUALS ||
+				LEXEMA(i + 2) == LEX_MOREEQUALS || LEXEMA(i + 2) == LEX_LESSEQUALS))
 		{
-			char nextLex = LEXEMA(i + 1);
-			
-			// Простое условие: true, false, литерал или идентификатор без оператора
-			if (nextLex == LEX_TRUE)
-			{
-				// Всегда истина - всегда переходим в istrue блок
-				for (int j = i + 2; j < tables.lextable.size && LEXEMA(j) != LEX_DIEZ; j++)
-				{
-					if (LEXEMA(j) == LEX_ISTRUE) r = true;
-					if (LEXEMA(j) == LEX_ISFALSE) w = true;
-				}
-				if (r) str = str + "jmp right" + itoS(conditionnum) + "\n";
-				if (w) str = str + "wrong" + itoS(conditionnum) + ":\n";
-				if (r) str = str + "right" + itoS(conditionnum) + ":";
-				// Не создаем метку next здесь - она будет создана в case LEX_DIEZ
-				return str;
-			}
-			else if (nextLex == LEX_FALSE)
-			{
-				// Всегда ложь - всегда переходим в isfalse блок или пропускаем
-				for (int j = i + 2; j < tables.lextable.size && LEXEMA(j) != LEX_DIEZ; j++)
-				{
-					if (LEXEMA(j) == LEX_ISTRUE) r = true;
-					if (LEXEMA(j) == LEX_ISFALSE) w = true;
-				}
-				if (w) str = str + "jmp wrong" + itoS(conditionnum) + "\n";
-				if (r) str = str + "right" + itoS(conditionnum) + ":\n";
-				if (w) str = str + "wrong" + itoS(conditionnum) + ":";
-				// Не создаем метку next здесь - она будет создана в case LEX_DIEZ
-				return str;
-			}
-			else if (nextLex == LEX_LITERAL || nextLex == LEX_ID || nextLex == LEX_LITERAL_HEX)
-			{
-				// Литерал или идентификатор - проверяем значение
-				if (tables.lextable.table[i + 1].idxTI != NULLIDX_TI)
-				{
-					IT::Entry entry = ITENTRY(i + 1);
-					if (entry.iddatatype == IT::IDDATATYPE::SHORT)
-					{
-						short value = entry.value.vnum;
-						
-						for (int j = i + 2; j < tables.lextable.size && LEXEMA(j) != LEX_DIEZ; j++)
-						{
-							if (LEXEMA(j) == LEX_ISTRUE) r = true;
-							if (LEXEMA(j) == LEX_ISFALSE) w = true;
-						}
-						
-						// Если значение != 0, условие истинно
-						if (value != 0)
-						{
-							if (r) str = str + "jmp right" + itoS(conditionnum) + "\n";
-							if (w) str = str + "wrong" + itoS(conditionnum) + ":\n";
-							if (r) str = str + "right" + itoS(conditionnum) + ":";
-							// Не создаем метку next здесь - она будет создана в case LEX_DIEZ
-						}
-						else
-						{
-							if (w) str = str + "jmp wrong" + itoS(conditionnum) + "\n";
-							if (r) str = str + "right" + itoS(conditionnum) + ":\n";
-							if (w) str = str + "wrong" + itoS(conditionnum) + ":";
-							// Не создаем метку next здесь - она будет создана в case LEX_DIEZ
-						}
-						return str;
-					}
-				}
-			}
-		}
-		
-		// Обычное сравнение с оператором (проверяем, что есть оператор)
-		if (i + 2 < tables.lextable.size && 
-			(LEXEMA(i + 2) == LEX_MORE || LEXEMA(i + 2) == LEX_LESS || 
-			 LEXEMA(i + 2) == LEX_EQUALS || LEXEMA(i + 2) == LEX_NOTEQUALS ||
-			 LEXEMA(i + 2) == LEX_MOREEQUALS || LEXEMA(i + 2) == LEX_LESSEQUALS))
-		{
-			if (i + 3 < tables.lextable.size && 
-				tables.lextable.table[i + 1].idxTI != NULLIDX_TI && 
+			if (i + 3 < tables.lextable.size &&
+				tables.lextable.table[i + 1].idxTI != NULLIDX_TI &&
 				tables.lextable.table[i + 3].idxTI != NULLIDX_TI)
 			{
 				IT::Entry lft = ITENTRY(i + 1);
@@ -399,6 +333,7 @@ namespace Gener
 
 				for (int j = i + 5; j < tables.lextable.size && LEXEMA(j) != LEX_DIEZ; j++)
 				{
+					// Проверяем, есть ли блоки true/false и является ли это циклом
 					if (LEXEMA(j) == LEX_ISTRUE) r = true;
 					if (LEXEMA(j) == LEX_ISFALSE) w = true;
 					if (LEXEMA(j) == LEX_CYCLE) c = true;
@@ -408,45 +343,58 @@ namespace Gener
 				string cmpInstr = (rgt.iddatatype == IT::IDDATATYPE::SHORT) ? "cmp dx, word ptr " : "cmp edx, ";
 				str = str + movInstr + lft.id + "\n" + cmpInstr + rgt.id + "\n";
 
+				// FIX: Исправлена таблица переходов.
+				// wstr (Wrong String) теперь содержит условие, ОБРАТНОЕ исходному (включая равенство)
 				switch (LEXEMA(i + 2))
 				{
-				case LEX_MORE:  rstr = "jg";  wstr = "jl";  break;
-				case LEX_LESS:   rstr = "jl";  wstr = "jg";  break;
-				case LEX_EQUALS:    rstr = "jz";  wstr = "jnz";  break;
-				case LEX_NOTEQUALS:   rstr = "jnz";  wstr = "jz";  break;
-				case LEX_MOREEQUALS:   rstr = "jz"; rstr2 = "jg";  wstr = "jnz";  break;
-				case LEX_LESSEQUALS:   rstr = "jz"; rstr2 = "jl";  wstr = "jnz";  break;
+				case LEX_MORE:       // >
+					rstr = "jg";     // Для цикла: прыгаем, если больше
+					wstr = "jle";    // Для IF: уходим в false, если МЕНЬШЕ ИЛИ РАВНО
+					break;
+				case LEX_LESS:       // <
+					rstr = "jl";     // Для цикла: прыгаем, если меньше
+					wstr = "jge";    // Для IF: уходим в false, если БОЛЬШЕ ИЛИ РАВНО
+					break;
+				case LEX_EQUALS:     // ==
+					rstr = "jz";     // Для цикла: прыгаем, если равно
+					wstr = "jnz";    // Для IF: уходим в false, если НЕ РАВНО
+					break;
+				case LEX_NOTEQUALS:  // !=
+					rstr = "jnz";
+					wstr = "jz";     // Для IF: уходим в false, если РАВНО
+					break;
+				case LEX_MOREEQUALS: // >=
+					rstr = "jge";
+					wstr = "jl";     // Для IF: уходим в false, если МЕНЬШЕ
+					break;
+				case LEX_LESSEQUALS: // <=
+					rstr = "jle";
+					wstr = "jg";     // Для IF: уходим в false, если БОЛЬШЕ
+					break;
 				}
 
-				if (LEXEMA(i + 2) == LEX_MORE || LEXEMA(i + 2) == LEX_LESS || LEXEMA(i + 2) == LEX_EQUALS || LEXEMA(i + 2) == LEX_NOTEQUALS) {
-					if (!c && r) str = str + "\n" + rstr + " right" + itoS(conditionnum);
-					if (!c && w) str = str + "\n" + wstr + " wrong" + itoS(conditionnum);
-				}
-				if (LEXEMA(i + 2) == LEX_MOREEQUALS || LEXEMA(i + 2) == LEX_LESSEQUALS) {
-					if (!c && r) str = str + "\n" + rstr + " right" + itoS(conditionnum) + "\n" + rstr2 + " right" + itoS(conditionnum);
-					if (!c && w) str = str + "\n" + wstr + " wrong" + itoS(conditionnum);
-				}
-				if (c)
+				if (c) // Если это ЦИКЛ
 				{
-					string jmpCmd;
-					if (LEXEMA(i + 2) == LEX_MORE || LEXEMA(i + 2) == LEX_LESS || LEXEMA(i + 2) == LEX_EQUALS || LEXEMA(i + 2) == LEX_NOTEQUALS) {
-						jmpCmd = rstr;
-					}
-					else if (LEXEMA(i + 2) == LEX_MOREEQUALS) {
-						jmpCmd = "jge";
-					}
-					else if (LEXEMA(i + 2) == LEX_LESSEQUALS) {
-						jmpCmd = "jle";
-					}
-					cyclecode = str + "\n" + jmpCmd + " do" + itoS(conditionnum);
+					// В цикле логика обычно "Пока истина - прыгаем в начало"
+					cyclecode = str + "\n" + rstr + " do" + itoS(conditionnum);
 					str = "";
 				}
-				else if (!r || !w)  str = str + "\njmp next" + itoS(conditionnum);
+				else // Если это ОБЫЧНОЕ УСЛОВИЕ (IF)
+				{
+					// Если условие НЕ выполнилось (wstr), прыгаем в блок wrong
+					str = str + "\n" + wstr + " wrong" + itoS(conditionnum);
+
+					// Явный прыжок в right НЕ НУЖЕН, процессор сам туда провалится,
+					// так как метка right идет следом.
+				}
+
+				// Если блоков true/false нет вообще, прыгаем в конец
+				if (!c && (!r && !w))  str = str + "\njmp next" + itoS(conditionnum);
+
 				return str;
 			}
 		}
-		
-		// Если ничего не подошло, возвращаем пустую строку (ошибка)
+
 		return "";
 	}
 

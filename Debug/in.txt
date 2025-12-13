@@ -20,7 +20,6 @@ proc function stand(line a, line b)
 
 //Комментарий однострочный
 main[
-        
 	output "Number at sixteen format: ";
 	new number /*Многострочный комментарий*/six = 0x3a;
 	output six;
@@ -132,7 +131,7 @@ main[
 	new line surname ="Gerasimovich";
 
 	
-	new number poi = 4;
+	new number poi = 6;
 	new number isi = 4;
 	is: poi @ isi #
 	istrue [stand(name,surname);]

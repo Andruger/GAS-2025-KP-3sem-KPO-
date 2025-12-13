@@ -36,6 +36,10 @@ namespace Polish
                         return false;
 
                     // ����� ���������������� ���������
+                    if (v.size() > 0)
+                    {
+                        cout << "Line " << v[0].sn << " ";
+                    }
                     for (int i = 0; i < v.size(); i++)
                     {
                         cout << v[i].lexema;
