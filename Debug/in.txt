@@ -18,11 +18,11 @@ proc function stand(line a, line b)
 ]
 
 
-
+//Комментарий однострочный
 main[
         
 	output "Number at sixteen format: ";
-	new number six = 0x3a;
+	new number /*Многострочный комментарий*/six = 0x3a;
 	output six;
 	nextline;
 	output "----------------------";

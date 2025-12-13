@@ -2,48 +2,109 @@
 #include "Parm.h"
 #include "In.h"
 #include "Log.h"
-#define	LEX_MINUS		 '-'	// вычитание
-#define	MAXSIZE_LT		 4096	    //максимальное количество строк в ТЛ
+#define	LEX_MINUS		 '-'	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+#define	MAXSIZE_LT		 4096	    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ
 
 
 int In::InWord::size = NULL;
 
 namespace In
 {
-	IN getin(wchar_t infile[], std::ostream* stream)			// ввести и проверить входной поток
+	IN getin(wchar_t infile[], std::ostream* stream)			// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 	{
 		unsigned char* text = new unsigned char[IN_MAX_LEN_TEXT];
 		std::ifstream instream(infile);
 		if (!instream.is_open())
-			throw ERROR_THROW(102);								//"Системная ошибка: Ошибка при открытии файла с исходным кодом(-in)"
+			throw ERROR_THROW(102);								//"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ(-in)"
 		IN in;
 		int pos = 0;
 		bool isLiteral = false;
+		bool inSingleLineComment = false;  // Inside single-line comment (//)
+		bool inMultiLineComment = false;  // Inside multi-line comment (/* */)
+		
 		while (true)
 		{
 			unsigned char uch = instream.get();
 			if (instream.eof())
 				break;
-			if (in.code[uch] == IN::Q)   // ковычка 
+			
+			unsigned char nextCh = instream.peek();  // Look ahead for next character
+			
+			// Toggle literal state only if not in comments
+			if (in.code[uch] == IN::Q && !inSingleLineComment && !inMultiLineComment)   // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
 				isLiteral = !isLiteral;
+			
+			// Handle single-line comment - skip until newline
+			if (inSingleLineComment)
+			{
+				if (in.code[uch] == IN::N)  // Newline found - end comment
+				{
+					inSingleLineComment = false;
+					text[in.size++] = uch;  // Include newline in output
+					in.lines++;
+					pos = -1;
+				}
+				pos++;
+				continue;
+			}
+			
+			// Handle multi-line comment (/* */)
+			if (inMultiLineComment)
+			{
+				// Track line numbers
+				if (in.code[uch] == IN::N)
+				{
+					in.lines++;
+					pos = -1;
+				}
+				// Check for end of comment (*/)
+				if (uch == '*' && nextCh == '/')
+				{
+					inMultiLineComment = false;
+					instream.get();  // Consume the '/'
+					pos++;
+				}
+				pos++;
+				continue;
+			}
+			
+			// Check for start of single-line comment (//)
+			if (!isLiteral && !inSingleLineComment && !inMultiLineComment && uch == '/' && nextCh == '/')
+			{
+				inSingleLineComment = true;
+				instream.get();  // Consume the second '/'
+				pos++;
+				continue;
+			}
+			
+			// Check for start of multi-line comment (/*)
+			if (!isLiteral && !inSingleLineComment && !inMultiLineComment && uch == '/' && nextCh == '*')
+			{
+				inMultiLineComment = true;
+				instream.get();  // Consume the '*'
+				pos++;
+				continue;
+			}
+			
+			// Normal processing (not in comments)
 			switch (in.code[uch])
 			{
-			case IN::N: // новая строка 
+			case IN::N: // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 
 				text[in.size++] = uch;
 				in.lines++;
 				pos = -1;
 				break;
-			case IN::T: // разрешённый символ 
-			case IN::P: // пробел либо табуляция
-			case IN::S: // символы 
-			case IN::Q: // кавычки
+			case IN::T: // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 
+			case IN::P: // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+			case IN::S: // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
+			case IN::Q: // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				text[in.size++] = uch;
 				break;
-			case IN::F: // недопустимый символ в исходном файле
+			case IN::F: // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 				Log::writeError(stream, Error::GetError(200, in.lines, pos));
 				in.ignor++;
 				break;
-			case IN::I:// игнорируемый символ 
+			case IN::I:// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 
 				in.ignor++;
 				break;
 			default:
@@ -53,10 +114,10 @@ namespace In
 		}
 		text[in.size] = IN_CODE_NULL;
 		in.text = text;
-		instream.close(); // закрыть поток 
+		instream.close(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ 
 		return in;
 	}
-	void addWord(InWord* words, char* word, int line)					// добавить слово в таблицу
+	void addWord(InWord* words, char* word, int line)					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	{
 		if (*word == IN_CODE_NULL)
 			return;
@@ -64,47 +125,47 @@ namespace In
 		strcpy_s(words[InWord::size].word, strlen(word) + 1, word);
 		InWord::size++;
 	}
-	InWord* getWordsTable(std::ostream* stream, unsigned char* text, int* code, int textSize)				// формируем таблицу слов
+	InWord* getWordsTable(std::ostream* stream, unsigned char* text, int* code, int textSize)				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 	{
 		InWord* words = new InWord[MAXSIZE_LT];
-		int bufpos = 0;				// позиция в буфере
-		int line = 1;				// номер строки исходного кода
-		char buffer[MAX_LEN_BUFFER] = "";		// буфер
-		for (int i = 0; i < textSize; i++)			// заполнение
+		int bufpos = 0;				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+		int line = 1;				// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+		char buffer[MAX_LEN_BUFFER] = "";		// пїЅпїЅпїЅпїЅпїЅ
+		for (int i = 0; i < textSize; i++)			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		{
 			switch (code[text[i]])
 			{
 			case IN::S:
 			{
-				if (text[i] == LEX_MINUS && isdigit(text[i + 1])) // числовой литерал с минусом
+				if (text[i] == LEX_MINUS && isdigit(text[i + 1])) // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				{
 					buffer[bufpos++] = text[i];
 					buffer[bufpos] = IN_CODE_NULL;
 					break;
 				}
 				char letter[] = { (char)text[i], IN_CODE_NULL };
-				addWord(words, buffer, line);	// буфер перед односимвольной лексемой
-				addWord(words, letter, line);	// сама односимвольная лексема
+				addWord(words, buffer, line);	// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+				addWord(words, letter, line);	// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				*buffer = IN_CODE_NULL;
 				bufpos = 0;
 				break;
 			}
-			case IN::N:											//новая строка
-			case IN::P:											// разделители и пробелы
+			case IN::N:											//пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+			case IN::P:											// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				addWord(words, buffer, line);
 				*buffer = IN_CODE_NULL;
 				bufpos = 0;
 				if (code[text[i]] == IN::N)
 					line++;
 				break;
-			case IN::Q:		// строковый литерал
+			case IN::Q:		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			{
 				addWord(words, buffer, line);
 				*buffer = IN_CODE_NULL;
 				bufpos = 0;
 				bool isltrlgood = true;
 				bool isChar = false;
-				// если литерал не закрыт - перевод строки будет раньше кавычки
+				// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				for (int j = i + 1; text[j] != IN_CODE_QUOTE; j++)
 				{
 					if (text[j] == IN_CODE_QUOTE2) {
@@ -114,7 +175,7 @@ namespace In
 					if (code[text[j]] == IN::N)
 					{
 						Log::writeError(stream, Error::GetError(311, line, 0));
-						isltrlgood = false; // литерал не закрыт!
+						isltrlgood = false; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!
 						break;
 					}
 				}
@@ -126,10 +187,10 @@ namespace In
 						if (j == 256 || i + j == textSize)
 						{
 							Log::writeError(stream, Error::GetError(312, line, 0));
-							break; // превышен размер литерала(учтена откр кавычка)
+							break; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ(пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 						}
 						buffer[bufpos++] = text[i + j];
-						if (text[i + j] == IN_CODE_QUOTE) // закрывающая кавычка
+						if (text[i + j] == IN_CODE_QUOTE) // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 						{
 							buffer[bufpos] = IN_CODE_NULL;
 							addWord(words, buffer, line);
@@ -145,10 +206,10 @@ namespace In
 						if (j == 256 || i + j == textSize)
 						{
 							Log::writeError(stream, Error::GetError(312, line, 0));
-							break; // превышен размер литерала(учтена откр кавычка)
+							break; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ(пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 						}
 						buffer[bufpos++] = text[i + j];
-						if (text[i + j] == IN_CODE_QUOTE2) // закрывающая кавычка
+						if (text[i + j] == IN_CODE_QUOTE2) // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 						{
 							buffer[bufpos] = IN_CODE_NULL;
 							addWord(words, buffer, line);
@@ -168,9 +229,9 @@ namespace In
 		return words;
 	}
 
-	void printTable(InWord* table)								// вывод таблицы на экран
+	void printTable(InWord* table)								// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 	{
-		std::cout << " ------------------ ТАБЛИЦА СЛОВ: ------------------" << std::endl;
+		std::cout << " ------------------ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ: ------------------" << std::endl;
 		for (int i = 0; i < table->size; i++)
 			std::cout << std::setw(2) << i << std::setw(3) << table[i].line << " |  " << table[i].word << std::endl;
 	}
